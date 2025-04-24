@@ -18,11 +18,10 @@ Inspired by tools like Linear and Vercel Admin.
 - CountUp for stat animation
 
 ## Screenshots
-[Add screenshots or gifs here!]
+TBD
 
 ## Live Demo
-[Hosted link if applicable]
-
+TBD
 ## Setup
 ```bash
 npm install
