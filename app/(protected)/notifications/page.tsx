@@ -1,8 +1,7 @@
+//app/(protected)/notifications/page.tsx
 'use client';
 
-import { useAuth } from '@/components/auth/AuthContext';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useNotificationStore } from '@/components/notifications/notificationsStore';
 
 interface Notification {
@@ -12,17 +11,9 @@ interface Notification {
 }
 
 export default function NotificationsPage() {
-  const { isLoggedIn, isLoading } = useAuth();
-  const router = useRouter();
   const { setUnreadCount } = useNotificationStore();
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState<Notification[]>([]);
-
-  useEffect(() => {
-    if (!isLoading && !isLoggedIn) {
-      router.push('/login');
-    }
-  }, [isLoggedIn, isLoading, router]);
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -39,7 +30,7 @@ export default function NotificationsPage() {
     };
 
     fetchNotifications();
-  }, []);
+  }, [setUnreadCount]);
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6 p-6">

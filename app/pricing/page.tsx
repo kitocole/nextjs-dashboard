@@ -1,20 +1,11 @@
 'use client';
 
-import { useAuth } from '@/components/auth/AuthContext';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+
 import { Button } from '@/components/ui/button';
 
 export default function PricingPage() {
-  const { isLoggedIn, isLoading } = useAuth();
-  const router = useRouter();
   const [annual, setAnnual] = useState(false);
-
-  useEffect(() => {
-    if (!isLoading && !isLoggedIn) {
-      router.push('/login');
-    }
-  }, [isLoggedIn, isLoading, router]);
 
   const plans = [
     {

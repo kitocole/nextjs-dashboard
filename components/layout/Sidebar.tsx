@@ -1,9 +1,11 @@
+// app/components/layout/Sidebar.tsx
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useAuth } from '@/components/auth/AuthContext';
+import { useSession } from 'next-auth/react';
 import { useNotificationStore } from '@/components/notifications/notificationsStore';
 import {
   LayoutDashboard,
@@ -18,7 +20,8 @@ import {
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { isLoggedIn } = useAuth();
+  const { status } = useSession();
+  const isLoggedIn = status === 'authenticated';
   const [collapsed, setCollapsed] = useState(false);
   const { unreadCount, setUnreadCount } = useNotificationStore();
 
@@ -64,12 +67,12 @@ export function Sidebar() {
         collapsed ? 'w-20' : 'w-64'
       } border-r border-[var(--sidebar-border)] bg-[var(--sidebar)] text-[var(--sidebar-foreground)]`}
     >
-      {/* Sidebar Links */}
-      <nav className="mt-20 flex flex-1 flex-col gap-2 text-gray-700 dark:text-gray-300">
-        {isLoggedIn && (
+      {/* 1) Scrollable nav area */}
+      <nav className="flex flex-1 flex-col gap-2 text-gray-700 dark:text-gray-300">
+        {isLoggedIn ? (
           <>
             <Link href="/dashboard" className={linkClasses('/dashboard')}>
-              <LayoutDashboard className="h-5 w-5" />
+              <LayoutDashboard className="h-10 w-5" />
               {!collapsed && 'Dashboard'}
             </Link>
             <Link href="/notifications" className={linkClasses('/notifications')}>
@@ -98,22 +101,21 @@ export function Sidebar() {
               {!collapsed && 'Settings'}
             </Link>
           </>
-        )}
-        {!isLoggedIn && (
+        ) : (
           <Link href="/login" className={linkClasses('/login')}>
-            <LogIn className="h-10 w-5" />
+            <LogIn className="h-5 w-5" />
             {!collapsed && 'Login'}
           </Link>
         )}
       </nav>
 
-      {/* Collapse button at bottom */}
-      <div className="flex justify-end p-2">
+      {/* 2) Always‐visible collapse control */}
+      <div className="flex justify-end border-t p-2">
         <button
-          onClick={() => setCollapsed(!collapsed)}
+          onClick={() => setCollapsed((c) => !c)}
           className="hover:text-primary text-gray-500"
         >
-          {collapsed ? <ChevronRight className="h-10 w-5" /> : <ChevronLeft className="h-5 w-5" />}
+          {collapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
         </button>
       </div>
     </div>

@@ -1,20 +1,22 @@
+// app/page.tsx
 'use client';
 
-import { useAuth } from '@/components/auth/AuthContext';
-import { useEffect } from 'react';
+import { useSession, signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { LineChart, Bell, Settings, LockKeyhole, ShieldCheck, CreditCard } from 'lucide-react';
+import {
+  LineChart,
+  Bell,
+  Settings as Cog,
+  LockKeyhole,
+  ShieldCheck,
+  CreditCard,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function Home() {
-  const { isLoggedIn, isLoading } = useAuth();
+  const { status } = useSession();
   const router = useRouter();
-
-  useEffect(() => {
-    if (!isLoading && !isLoggedIn) {
-      router.push('/login');
-    }
-  }, [isLoggedIn, isLoading, router]);
+  const isAuthenticated = status === 'authenticated';
 
   const features = [
     {
@@ -28,7 +30,7 @@ export default function Home() {
       description: 'Keep users informed with a dynamic notification feed.',
     },
     {
-      icon: <Settings className="text-primary h-10 w-10" />,
+      icon: <Cog className="text-primary h-10 w-10" />,
       title: 'Customizable Settings',
       description: 'Manage profile, preferences, and account settings easily.',
     },
@@ -64,25 +66,36 @@ export default function Home() {
             <Button size="lg" onClick={() => router.push('/pricing')}>
               View Pricing
             </Button>
-            <Button size="lg" variant="outline" onClick={() => router.push('/dashboard')}>
-              View Dashboard
-            </Button>
+
+            {isAuthenticated ? (
+              <Button size="lg" variant="outline" onClick={() => router.push('/dashboard')}>
+                View Dashboard
+              </Button>
+            ) : (
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+              >
+                Sign in to Dashboard
+              </Button>
+            )}
           </div>
         </div>
       </section>
 
       {/* Features Section */}
       <section className="animate-fade-in mx-auto grid w-full max-w-6xl grid-cols-1 gap-8 px-6 py-16 sm:grid-cols-2 md:grid-cols-3">
-        {features.map((feature, idx) => (
+        {features.map((feat, i) => (
           <div
-            key={idx}
+            key={i}
             className="flex flex-col items-center rounded-lg border bg-white p-6 text-center shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-900"
           >
-            {feature.icon}
+            {feat.icon}
             <h2 className="mt-4 text-xl font-bold text-gray-900 dark:text-gray-100">
-              {feature.title}
+              {feat.title}
             </h2>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{feature.description}</p>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{feat.description}</p>
           </div>
         ))}
       </section>

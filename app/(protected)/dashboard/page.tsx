@@ -1,8 +1,7 @@
+//dashboard/page.tsx
 'use client';
 
-import { useAuth } from '@/components/auth/AuthContext';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { StatCardProps } from '@/components/dashboard/StatCard';
 import { SkeletonCard } from '@/components/dashboard/SkeletonCard';
 import { Chart } from '@/components/dashboard/Chart';
@@ -23,8 +22,6 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates } from '@dnd-ki
 import SortableCard from '@/components/dashboard/SortableCard';
 
 export default function DashboardPage() {
-  const { isLoggedIn, isLoading } = useAuth();
-  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<null | {
     revenue: number;
@@ -94,12 +91,6 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    if (!isLoading && !isLoggedIn) {
-      router.push('/login');
-    }
-  }, [isLoggedIn, isLoading, router]);
-
-  useEffect(() => {
     const fetchStats = async () => {
       try {
         const res = await fetch('/api/stats');
@@ -139,7 +130,7 @@ export default function DashboardPage() {
     <div className="flex flex-col gap-6 p-8 md:p-10">
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={cards}>
-          <div className="animate-fade-in grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+          <div className="animate-fade-in grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-4">
             {loading || !stats
               ? Array(cards.length)
                   .fill(null)
@@ -154,7 +145,7 @@ export default function DashboardPage() {
       {loading ? (
         <SkeletonChart />
       ) : (
-        <div className="animate-fade-in grid gap-6 md:grid-cols-2">
+        <div className="animate-fade-in grid gap-4 md:grid-cols-2">
           <Chart />
           <UserTypePie />
           <NewSignupsBar />
