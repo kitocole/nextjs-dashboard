@@ -21,7 +21,7 @@ Inspired by tools like Linear and Vercel Admin.
 TBD
 
 ## Live Demo
-TBD
+[Hosted  on Vercel](https://nextjs-dashboard-8twexy3zp-kitocoles-projects.vercel.app/)
 ## Setup
 ```bash
 npm install
