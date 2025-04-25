@@ -47,7 +47,7 @@ export function Navbar() {
           Company Name
         </Link>
         <span className="pt-1 pl-10 font-semibold">
-          {isAuthenticated ? `Welcome, ${session?.user?.name?.split(' ')[0]}!` : 'Welcome'}
+          {isAuthenticated ? `Welcome, ${session?.user?.name?.split(' ')[0]}!` : ''}
         </span>
       </div>
 
