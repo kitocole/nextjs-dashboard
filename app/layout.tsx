@@ -5,6 +5,7 @@ import './globals.css';
 import { SessionProvider } from 'next-auth/react';
 import { Navbar } from '@/components/layout/Navbar';
 import { Toaster } from 'sonner';
+import { SidebarResizeHandler } from '@/components/layout/SidebarResizeHandler';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -36,6 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SessionProvider>
           {/* 1) Always-on header */}
           <Navbar />
+          <SidebarResizeHandler />
 
           {/* 2) Pages will render here (with a top padding to clear the fixed navbar) */}
           <main className="pt-16">{children}</main>

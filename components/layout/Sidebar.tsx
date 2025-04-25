@@ -1,28 +1,19 @@
 // app/components/layout/Sidebar.tsx
 
 'use client';
-
-import { useState, useEffect } from 'react';
+import { useSidebarStore } from './useSidebarStore';
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useNotificationStore } from '@/components/notifications/notificationsStore';
-import {
-  LayoutDashboard,
-  User,
-  LogIn,
-  ChevronLeft,
-  ChevronRight,
-  Settings,
-  Bell,
-  DollarSign,
-} from 'lucide-react';
+import { LayoutDashboard, User, LogIn, Settings, Bell, DollarSign } from 'lucide-react';
 
 export function Sidebar() {
   const pathname = usePathname();
   const { status } = useSession();
   const isLoggedIn = status === 'authenticated';
-  const [collapsed, setCollapsed] = useState(false);
+  const { collapsed } = useSidebarStore();
   const { unreadCount, setUnreadCount } = useNotificationStore();
 
   useEffect(() => {
@@ -39,21 +30,6 @@ export function Sidebar() {
     fetchNotifications();
   }, [setUnreadCount]);
 
-  useEffect(() => {
-    // Auto-collapse if screen width is small
-    const handleResize = () => {
-      if (window.innerWidth < 768) {
-        setCollapsed(true);
-      } else {
-        setCollapsed(false);
-      }
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    // Clean up listener
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
   const linkClasses = (href: string) =>
     `px-3 py-2 rounded-md transition-colors flex items-center gap-2 ${
       pathname === href
@@ -63,7 +39,7 @@ export function Sidebar() {
 
   return (
     <div
-      className={`flex h-screen flex-col p-4 shadow-lg transition-all duration-300 ${
+      className={`flex h-screen flex-col p-2 shadow-lg transition-all duration-300 ${
         collapsed ? 'w-20' : 'w-64'
       } border-r border-[var(--sidebar-border)] bg-[var(--sidebar)] text-[var(--sidebar-foreground)]`}
     >
@@ -108,16 +84,6 @@ export function Sidebar() {
           </Link>
         )}
       </nav>
-
-      {/* 2) Always‐visible collapse control */}
-      <div className="flex justify-end border-t p-2">
-        <button
-          onClick={() => setCollapsed((c) => !c)}
-          className="hover:text-primary text-gray-500"
-        >
-          {collapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
-        </button>
-      </div>
     </div>
   );
 }

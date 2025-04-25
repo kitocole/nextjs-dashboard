@@ -6,11 +6,13 @@ import { useSession, signIn, signOut } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { useNavbarSettings } from '@/components/layout/NavbarSettingsStore';
 import { useEffect, useState } from 'react';
+import { useSidebarStore } from './useSidebarStore';
+import { Menu } from 'lucide-react';
 
 export function Navbar() {
   const router = useRouter();
   const { enableShadow, enableAutoHide } = useNavbarSettings();
-
+  const { collapsed, toggle } = useSidebarStore();
   // NextAuth hooks
   const { data: session, status } = useSession();
   const isAuthenticated = status === 'authenticated';
@@ -38,13 +40,13 @@ export function Navbar() {
       className={`fixed top-0 right-0 left-0 z-50 flex items-center justify-between p-4 transition-all duration-300 ${scrolled ? 'shadow-md' : ''} ${hidden ? '-translate-y-full' : 'translate-y-0'} border-b border-[var(--sidebar-border)] bg-[var(--sidebar)] text-[var(--sidebar-foreground)]`}
     >
       <div className="flex items-center gap-4">
+        <button onClick={toggle} className="p-1">
+          {collapsed ? <Menu className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        </button>
         <Link href="/" className="text-xl font-bold">
           Company Name
         </Link>
-        <span
-          className="cursor-pointer font-semibold"
-          onClick={() => (isAuthenticated ? router.push('/7') : null)}
-        >
+        <span className="pt-1 pl-10 font-semibold">
           {isAuthenticated ? `Welcome, ${session?.user?.name?.split(' ')[0]}!` : 'Welcome'}
         </span>
       </div>

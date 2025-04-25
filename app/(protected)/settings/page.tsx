@@ -1,7 +1,7 @@
 // app/(protected)/settings/page.tsx
 'use client';
 
-import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { useNavbarSettings } from '@/components/layout/NavbarSettingsStore';
 
 export default function SettingsPage() {
