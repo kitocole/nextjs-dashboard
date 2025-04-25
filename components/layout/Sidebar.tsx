@@ -2,33 +2,17 @@
 
 'use client';
 import { useSidebarStore } from './useSidebarStore';
-import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { useNotificationStore } from '@/components/notifications/notificationsStore';
-import { LayoutDashboard, User, LogIn, Settings, Bell, DollarSign } from 'lucide-react';
+// import { useNotificationStore } from '@/components/notifications/notificationsStore';
+import { LayoutDashboard, User, LogIn, DollarSign } from 'lucide-react';
 
 export function Sidebar() {
   const pathname = usePathname();
   const { status } = useSession();
   const isLoggedIn = status === 'authenticated';
   const { collapsed } = useSidebarStore();
-  const { unreadCount, setUnreadCount } = useNotificationStore();
-
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const res = await fetch('/api/notifications');
-        const data = await res.json();
-        setUnreadCount(data.length); // Count number of notifications
-      } catch (error) {
-        console.error('Failed to fetch notifications', error);
-      }
-    };
-
-    fetchNotifications();
-  }, [setUnreadCount]);
 
   const linkClasses = (href: string) =>
     `px-3 py-2 rounded-md transition-colors flex items-center gap-2 ${
@@ -39,7 +23,7 @@ export function Sidebar() {
 
   return (
     <div
-      className={`flex h-screen flex-col p-2 shadow-lg transition-all duration-300 ${
+      className={`flex h-screen flex-col p-2 pt-8 shadow-lg transition-all duration-300 ${
         collapsed ? 'w-20' : 'w-64'
       } border-r border-[var(--sidebar-border)] bg-[var(--sidebar)] text-[var(--sidebar-foreground)]`}
     >
@@ -51,19 +35,6 @@ export function Sidebar() {
               <LayoutDashboard className="h-10 w-5" />
               {!collapsed && 'Dashboard'}
             </Link>
-            <Link href="/notifications" className={linkClasses('/notifications')}>
-              <div className="flex h-10 items-center gap-2">
-                <div className="relative">
-                  <Bell className="h-5 w-5" />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-2 -right-2 rounded-full bg-red-500 px-1.5 py-0.5 text-xs text-white">
-                      {unreadCount}
-                    </span>
-                  )}
-                </div>
-                {!collapsed && 'Notifications'}
-              </div>
-            </Link>
             <Link href="/profile" className={linkClasses('/profile')}>
               <User className="h-10 w-5" />
               {!collapsed && 'Profile'}
@@ -71,10 +42,6 @@ export function Sidebar() {
             <Link href="/pricing" className={linkClasses('/pricing')}>
               <DollarSign className="h-10 w-5" />
               {!collapsed && 'Pricing'}
-            </Link>
-            <Link href="/settings" className={linkClasses('/settings')}>
-              <Settings className="h-10 w-5" />
-              {!collapsed && 'Settings'}
             </Link>
           </>
         ) : (

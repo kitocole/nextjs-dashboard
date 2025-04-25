@@ -1,11 +1,10 @@
-// app/layout.tsx
 'use client';
 
 import './globals.css';
 import { SessionProvider } from 'next-auth/react';
 import { Navbar } from '@/components/layout/Navbar';
-import { Toaster } from 'sonner';
 import { SidebarResizeHandler } from '@/components/layout/SidebarResizeHandler';
+import { Toaster } from 'sonner';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -21,7 +20,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   if (theme === 'light') {
                     document.documentElement.classList.remove('dark');
                   } else {
-                    // default to dark
                     document.documentElement.classList.add('dark');
                   }
                 } catch (e) {}
@@ -31,7 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body
-        className="min-h-screen bg-gray-100 text-gray-900 dark:bg-gray-950 dark:text-gray-100"
+        className="flex h-screen flex-col overflow-hidden bg-gray-100 text-gray-900 dark:bg-gray-950 dark:text-gray-100"
         suppressHydrationWarning
       >
         <SessionProvider>
@@ -39,8 +37,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Navbar />
           <SidebarResizeHandler />
 
-          {/* 2) Pages will render here (with a top padding to clear the fixed navbar) */}
-          <main className="pt-16">{children}</main>
+          {/* 2) Container for all pages & layouts */}
+          <div className="flex flex-1 flex-col overflow-hidden">{children}</div>
         </SessionProvider>
 
         <Toaster position="top-center" duration={2000} closeButton theme="system" />
