@@ -1,7 +1,7 @@
 // app/page.tsx
 'use client';
 
-import { useSession, signIn } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import {
   LineChart,
@@ -72,11 +72,7 @@ export default function Home() {
                 View Dashboard
               </Button>
             ) : (
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
-              >
+              <Button size="lg" variant="outline" onClick={() => router.push('/login')}>
                 Sign in to Dashboard
               </Button>
             )}

@@ -1,11 +1,16 @@
-// app/api/auth/[...nextauth]/options.ts
+/* app/api/auth/[...nextauth]/options.ts */
 import type { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import GithubProvider from 'next-auth/providers/github';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import { db } from '@/lib/prisma';
+import bcrypt from 'bcryptjs';
+import { CustomAdapter } from './customAdapter';
 
 export const authOptions: NextAuthOptions = {
+  adapter: CustomAdapter(),
   secret: process.env.NEXTAUTH_SECRET,
+  session: { strategy: 'jwt' },
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -16,20 +21,26 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GITHUB_SECRET!,
     }),
     CredentialsProvider({
-      name: 'Demo Admin',
+      name: 'Email',
       credentials: {
-        username: { label: 'Username', type: 'text' },
+        email: { label: 'Email', type: 'email', placeholder: 'you@example.com' },
         password: { label: 'Password', type: 'password' },
       },
-      async authorize(creds) {
-        if (creds?.username === 'admin' && creds.password === 'changeme') {
-          return { id: '1', name: 'Demo Admin', email: 'admin@example.com' };
+      async authorize(credentials) {
+        console.log('[demo login] creds:', credentials);
+        const user = await db.user.findUnique({
+          where: { email: credentials!.email },
+        });
+        console.log('[demo login] user from DB:', user);
+        if (!user?.passwordHash) {
+          console.log('[demo login] missing hash; rejecting');
+          return null;
         }
-        return null;
+        const valid = await bcrypt.compare(credentials!.password, user.passwordHash);
+        console.log('[demo login] password match?', valid);
+        return valid ? user : null;
       },
     }),
   ],
-  pages: {
-    signIn: '/login',
-  },
+  pages: { signIn: '/login' },
 };

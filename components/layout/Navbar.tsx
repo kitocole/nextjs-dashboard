@@ -3,7 +3,7 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { useSession, signIn, signOut } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import { Menu as MenuIcon, Bell, Settings } from 'lucide-react';
 import { useSidebarStore } from './useSidebarStore';
 import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react';
@@ -105,12 +105,12 @@ export function Navbar() {
             </Transition>
           </Menu>
         ) : (
-          <button
-            onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+          <Link
+            href="/login"
             className="rounded bg-blue-600 px-3 py-1 text-white transition hover:bg-blue-700"
           >
             Login
-          </button>
+          </Link>
         )}
       </div>
     </header>

@@ -1,58 +1,79 @@
 // prisma/seed.ts
-
 import { PrismaClient } from '@prisma/client';
-import { faker } from '@faker-js/faker';
+import bcrypt from 'bcryptjs';
+// import { faker } from '@faker-js/faker';
 
 const db = new PrismaClient();
 
 // Known suffixes to randomly assign
-const SUFFIXES = ['Jr.', 'Sr.', 'II', 'III', 'IV', 'MD', 'PhD', 'Esq.'];
-
-/** Generate a random suffix or null */
-function randomSuffix(): string | null {
-  return faker.helpers.arrayElement([...SUFFIXES, null]);
-}
+// const SUFFIXES = ['Jr.', 'Sr.', 'II', 'III', 'IV', 'MD', 'PhD', 'Esq.'];
+// function randomSuffix(): string | null {
+//   return faker.helpers.arrayElement([...SUFFIXES, null]);
+// }
 
 async function main() {
-  console.log('🧹 Clearing existing users...');
-  await db.user.deleteMany();
+  // 1) Upsert demo users
+  const demos = [
+    { name: 'Admin', email: 'admin@example.com', password: 'changeme' },
+    { name: 'Editor', email: 'editor@example.com', password: 'changeme' },
+  ];
 
-  const totalUsers = 100;
-  console.log(`🎲 Generating ${totalUsers} unique users with realistic emails...`);
-
-  const users: Array<{
-    firstName: string;
-    middleName: string | null;
-    lastName: string;
-    suffix: string | null;
-    email: string;
-    role: string;
-  }> = [];
-  const emailSet = new Set<string>();
-
-  while (users.length < totalUsers) {
-    const firstName = faker.person.firstName();
-    const middleName = faker.datatype.boolean() ? faker.person.middleName() : null;
-    const lastName = faker.person.lastName();
-    const suffix = randomSuffix();
-    const email = faker.internet.email({ firstName, lastName }).toLowerCase();
-
-    // Ensure unique emails
-    if (emailSet.has(email)) continue;
-    emailSet.add(email);
-
-    const role = faker.helpers.arrayElement(['Admin', 'Editor', 'Viewer']);
-
-    users.push({ firstName, middleName, lastName, suffix, email, role });
+  for (const u of demos) {
+    const hash = await bcrypt.hash(u.password, 10);
+    await db.user.upsert({
+      where: { email: u.email },
+      update: {},
+      create: {
+        firstName: u.name,
+        middleName: null,
+        lastName: u.name,
+        suffix: null,
+        email: u.email,
+        role: u.name,
+        passwordHash: hash,
+      },
+    });
+    console.log(`Seeded demo user: ${u.email}`);
   }
 
-  console.log('🚀 Inserting users into database...');
-  await db.user.createMany({
-    data: users,
-    skipDuplicates: false,
-  });
+  // 2) Clear non-demo users
+  // await db.user.deleteMany({ where: { email: { notIn: demos.map((d) => d.email) } } });
+  // console.log('Cleared non-demo users.');
 
-  console.log(`✅ Seeded ${users.length} users with realistic emails and name parts.`);
+  // 3) Generate 100 random users
+  //   console.log('🎲 Generating 100 random users...');
+  //   const users: Array<{
+  //     firstName: string;
+  //     middleName: string | null;
+  //     lastName: string;
+  //     suffix: string | null;
+  //     email: string;
+  //     role: string;
+  //     passwordHash: string;
+  //   }> = [];
+  //   const emailSet = new Set<string>();
+
+  //   while (users.length < 100) {
+  //     const firstName = faker.person.firstName();
+  //     const lastName = faker.person.lastName();
+  //     const email = faker.internet.email({ firstName, lastName }).toLowerCase();
+  //     if (emailSet.has(email)) continue;
+  //     const pass = 'BadPass'; // faker.internet.password({ length: 8 });
+  //     const hashed = await bcrypt.hash(pass, 10);
+  //     emailSet.add(email);
+  //     users.push({
+  //       firstName,
+  //       middleName: faker.datatype.boolean() ? faker.person.middleName() : null,
+  //       lastName,
+  //       suffix: randomSuffix(),
+  //       email,
+  //       role: faker.helpers.arrayElement(['Admin', 'Editor', 'Viewer']),
+  //       passwordHash: hashed,
+  //     });
+  //   }
+
+  //   await db.user.createMany({ data: users });
+  //   console.log(`✅ Seeded ${users.length} random users.`);
 }
 
 main()

@@ -1,4 +1,5 @@
 // prisma/schema.prisma
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -9,12 +10,57 @@ generator client {
 }
 
 model User {
-  id         String   @id @default(cuid())
-  firstName  String
-  middleName String?
-  lastName   String
-  suffix     String?
-  email      String   @unique
-  role       String
-  createdAt  DateTime @default(now())
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  // your extra fields:
+  firstName     String?
+  middleName    String?
+  lastName      String?
+  suffix        String?
+  role          String
+  createdAt     DateTime  @default(now())
+  passwordHash  String
+  accounts      Account[] // ← relation field
+  sessions      Session[] // ← relation field
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?   @map("refresh_token")
+  access_token      String?   @map("access_token")
+  expires_at        Int?      @map("expires_at")
+  token_type        String?   @map("token_type")
+  scope             String?
+  id_token          String?   @map("id_token")
+  session_state     String?
+  oauth_token_secret String?  @map("oauth_token_secret")
+  oauth_token        String?  @map("oauth_token")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }
