@@ -12,7 +12,7 @@ import { Fragment } from 'react';
 
 export function Navbar() {
   const pathname = usePathname();
-  const showToggle = ['/dashboard', '/notifications', '/profile', '/settings'].some((p) =>
+  const showToggle = ['/dashboard', '/notifications', '/profile', '/users'].some((p) =>
     pathname.startsWith(p),
   );
   const { toggle } = useSidebarStore();
