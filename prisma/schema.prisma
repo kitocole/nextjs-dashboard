@@ -1,3 +1,4 @@
+// prisma/schema.prisma
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -10,9 +11,9 @@ generator client {
 model User {
   id         String   @id @default(cuid())
   firstName  String
-  middleName String?   // optional
+  middleName String?
   lastName   String
-  suffix     String?   // optional
+  suffix     String?
   email      String   @unique
   role       String
   createdAt  DateTime @default(now())

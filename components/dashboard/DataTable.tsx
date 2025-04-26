@@ -1,5 +1,3 @@
-// components/dashboard/DataTable.tsx
-
 'use client';
 
 import React, { useState, useMemo } from 'react';
@@ -11,15 +9,17 @@ import {
   getPaginationRowModel,
   flexRender,
   ColumnDef,
-  PaginationState,
+  RowData,
   ColumnFiltersState,
   VisibilityState,
   ColumnSizingState,
-  RowData,
+  PaginationState,
 } from '@tanstack/react-table';
 import dynamic from 'next/dynamic';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Maximize2, Minimize2, Download } from 'lucide-react';
+import { Menu, MenuButton, MenuItems, MenuItem, Transition } from '@headlessui/react';
 
 // dynamically import CSVLink to avoid SSR hydration mismatch
 const CSVLink = dynamic(() => import('react-csv').then((mod) => mod.CSVLink), { ssr: false });
@@ -38,6 +38,7 @@ export function DataTable<T extends RowData>({ data, columns }: DataTableProps<T
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnSizing, setColumnSizing] = useState<ColumnSizingState>({});
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const table = useReactTable({
     data: memoizedData,
@@ -46,7 +47,30 @@ export function DataTable<T extends RowData>({ data, columns }: DataTableProps<T
     onColumnFiltersChange: setColumnFilters,
     onPaginationChange: setPagination,
     onColumnVisibilityChange: setColumnVisibility,
-    onColumnSizingChange: setColumnSizing,
+    onColumnSizingChange: (updater) => {
+      setColumnSizing((old) => {
+        const newSizing = typeof updater === 'function' ? updater(old) : updater;
+        const diff = Object.entries(newSizing).find(([id, size]) => {
+          const oldSize = old[id] ?? table.getColumn(id)?.getSize() ?? 0;
+          return size !== oldSize;
+        });
+        if (!diff) return newSizing;
+        const [resizedId, newSize] = diff;
+        const oldSize = old[resizedId] ?? table.getColumn(resizedId)?.getSize() ?? 0;
+        const delta = newSize - oldSize;
+        const leafs = table.getAllLeafColumns();
+        const idx = leafs.findIndex((c) => c.id === resizedId);
+        if (idx === -1 || idx === leafs.length - 1) return newSizing;
+        const nextId = leafs[idx + 1].id;
+        const oldNext = old[nextId] ?? table.getColumn(nextId)?.getSize() ?? 0;
+        const nextSize = Math.max(30, oldNext - delta);
+        return {
+          ...old,
+          [resizedId]: newSize,
+          [nextId]: nextSize,
+        };
+      });
+    },
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -58,8 +82,8 @@ export function DataTable<T extends RowData>({ data, columns }: DataTableProps<T
   const pageCount = table.getPageCount();
 
   return (
-    <div className="w-full overflow-auto">
-      {/* Column visibility toggles */}
+    <div className="w-full">
+      {/* Column visibility, export menu, and expand toggle */}
       <div className="mb-4 flex flex-wrap items-center gap-4">
         <span className="font-medium">Columns:</span>
         {table.getAllLeafColumns().map((column) => (
@@ -73,19 +97,54 @@ export function DataTable<T extends RowData>({ data, columns }: DataTableProps<T
             {String(column.columnDef.header)}
           </label>
         ))}
-        {/* CSV export (client-only) */}
-        <CSVLink
-          data={memoizedData as unknown as object[]}
-          filename="export.csv"
-          className="ml-auto text-sm font-medium underline"
-        >
-          Export CSV
-        </CSVLink>
+        <div className="ml-auto flex items-center gap-2">
+          <Menu as="div" className="relative">
+            <MenuButton as={Button} variant="outline" size="sm">
+              <Download size={16} />
+            </MenuButton>
+            <Transition
+              as={React.Fragment}
+              enter="transition ease-out duration-100"
+              enterFrom="transform opacity-0 scale-95"
+              enterTo="transform opacity-100 scale-100"
+              leave="transition ease-in duration-75"
+              leaveFrom="transform opacity-100 scale-100"
+              leaveTo="transform opacity-0 scale-95"
+            >
+              <MenuItems className="absolute right-0 z-20 mt-2 w-40 rounded border bg-white shadow-md dark:bg-gray-800">
+                <div className="py-1">
+                  <MenuItem>
+                    {({ active }) => (
+                      <CSVLink
+                        data={memoizedData as unknown as object[]}
+                        filename="export.csv"
+                        className={`block px-4 py-2 text-sm ${
+                          active ? 'bg-gray-100 dark:bg-gray-700' : ''
+                        }`}
+                      >
+                        Export CSV
+                      </CSVLink>
+                    )}
+                  </MenuItem>
+                </div>
+              </MenuItems>
+            </Transition>
+          </Menu>
+          <Button variant="outline" size="sm" onClick={() => setIsExpanded((e) => !e)}>
+            {isExpanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+          </Button>
+        </div>
       </div>
 
-      {/* Table wrapper with fixed header and scrollable body */}
-      <div className="max-h-[400px] overflow-auto">
+      {/* Table with fixed header + scrollable body */}
+      <div className={`overflow-auto ${isExpanded ? 'max-h-screen' : 'max-h-[400px]'}`}>
         <table className="w-full table-fixed border-collapse">
+          <colgroup>
+            {table.getAllLeafColumns().map((col) => (
+              <col key={col.id} style={{ width: `${col.getSize()}px` }} />
+            ))}
+          </colgroup>
+
           <thead className="bg-background sticky top-0 z-10 dark:bg-gray-900">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
@@ -93,7 +152,7 @@ export function DataTable<T extends RowData>({ data, columns }: DataTableProps<T
                   <th
                     key={header.id}
                     colSpan={header.colSpan}
-                    className="relative cursor-pointer px-4 py-2 text-left"
+                    className="relative truncate px-4 py-2 text-left"
                     onClick={header.column.getToggleSortingHandler()}
                   >
                     {flexRender(header.column.columnDef.header, header.getContext())}
@@ -102,14 +161,15 @@ export function DataTable<T extends RowData>({ data, columns }: DataTableProps<T
                         ? '🔼'
                         : header.column.getIsSorted() === 'desc'
                           ? '🔽'
-                          : ''}
+                          : null}
                     </span>
-                    {/* Resize handle */}
                     {header.column.getCanResize() && (
                       <div
                         onMouseDown={header.getResizeHandler()}
                         onTouchStart={header.getResizeHandler()}
-                        className="absolute top-0 right-0 h-full w-1 cursor-col-resize bg-transparent hover:bg-gray-300 dark:hover:bg-gray-600"
+                        className={`absolute top-0 right-0 h-full w-1 cursor-col-resize bg-transparent hover:bg-gray-300 dark:hover:bg-gray-600 ${
+                          header.column.getIsResizing() ? 'bg-gray-400' : ''
+                        }`}
                       />
                     )}
                   </th>
@@ -119,7 +179,7 @@ export function DataTable<T extends RowData>({ data, columns }: DataTableProps<T
             {/* Filter row */}
             <tr>
               {table.getHeaderGroups()[0].headers.map((header) => (
-                <th key={header.id} className="px-4 py-1">
+                <th key={header.id} className="truncate px-4 py-1">
                   {header.column.getCanFilter() ? (
                     <Input
                       placeholder={`Filter ${String(header.column.id)}`}
@@ -132,11 +192,12 @@ export function DataTable<T extends RowData>({ data, columns }: DataTableProps<T
               ))}
             </tr>
           </thead>
+
           <tbody>
             {table.getRowModel().rows.map((row) => (
               <tr key={row.id} className="border-t hover:bg-gray-50 dark:hover:bg-gray-800">
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-4 py-2">
+                  <td key={cell.id} className="truncate px-4 py-2">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}
@@ -146,7 +207,7 @@ export function DataTable<T extends RowData>({ data, columns }: DataTableProps<T
         </table>
       </div>
 
-      {/* Pagination */}
+      {/* Pagination controls */}
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <Button
@@ -180,6 +241,18 @@ export function DataTable<T extends RowData>({ data, columns }: DataTableProps<T
             ))}
           </select>
           <span>of {pageCount}</span>
+          <span>| Rows per page:</span>
+          <select
+            value={pagination.pageSize}
+            onChange={(e) => table.setPageSize(Number(e.target.value))}
+            className="rounded border bg-white px-2 py-1 text-gray-900 dark:bg-gray-800 dark:text-gray-100"
+          >
+            {[10, 20, 30, 50].map((size) => (
+              <option key={size} value={size}>
+                {size}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
     </div>
