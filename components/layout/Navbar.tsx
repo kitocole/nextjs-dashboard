@@ -4,7 +4,7 @@
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useSession, signIn, signOut } from 'next-auth/react';
-import { Menu as MenuIcon, Bell } from 'lucide-react';
+import { Menu as MenuIcon, Bell, Settings } from 'lucide-react';
 import { useSidebarStore } from './useSidebarStore';
 import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react';
 import Image from 'next/image';
@@ -20,7 +20,7 @@ export function Navbar() {
   const isAuthenticated = status === 'authenticated';
 
   return (
-    <header className="fixed top-0 right-0 left-0 z-50 flex items-center justify-between border-b bg-[var(--sidebar)] px-4 py-2 text-[var(--sidebar-foreground)]">
+    <header className="fixed top-0 right-0 left-0 z-50 flex items-center justify-between border-b bg-[var(--sidebar)] px-4 py-4 text-[var(--sidebar-foreground)]">
       <div className="flex items-center gap-4">
         {showToggle && (
           <button onClick={toggle} className="p-2">
@@ -76,23 +76,24 @@ export function Navbar() {
               <MenuItems className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/10 focus:outline-none dark:bg-gray-800">
                 <div className="py-1">
                   <MenuItem>
-                    {({ active }) => (
+                    {({ focus }) => (
                       <Link
                         href="/settings"
                         className={`block px-4 py-2 text-sm ${
-                          active ? 'bg-gray-100 dark:bg-gray-700' : ''
+                          focus ? 'bg-gray-100 dark:bg-gray-700' : ''
                         }`}
                       >
+                        <Settings className="mr-2 inline h-4 w-4" />
                         Settings
                       </Link>
                     )}
                   </MenuItem>
                   <MenuItem>
-                    {({ active }) => (
+                    {({ focus }) => (
                       <button
                         onClick={() => signOut({ callbackUrl: '/' })}
                         className={`block w-full px-4 py-2 text-left text-sm ${
-                          active ? 'bg-gray-100 dark:bg-gray-700' : ''
+                          focus ? 'bg-gray-100 dark:bg-gray-700' : ''
                         }`}
                       >
                         Sign Out

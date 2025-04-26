@@ -38,7 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <SidebarResizeHandler />
 
           {/* 2) Container for all pages & layouts */}
-          <div className="flex flex-1 flex-col overflow-hidden">{children}</div>
+          <div className="mt-10 flex flex-1 flex-col overflow-hidden">{children}</div>
         </SessionProvider>
 
         <Toaster position="top-center" duration={2000} closeButton theme="system" />

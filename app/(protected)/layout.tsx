@@ -11,7 +11,7 @@ export default async function ProtectedLayout({ children }: { children: ReactNod
   return (
     <div className="flex flex-1 flex-col overflow-hidden bg-gray-100 md:flex-row dark:bg-gray-950">
       {/* Sidebar: sticky under the navbar, its own viewport */}
-      <aside className="sticky top-10 h-[calc(100vh-2.5rem)]">
+      <aside className="sticky h-[calc(100vh-2.5rem)]">
         <Sidebar />
       </aside>
 
