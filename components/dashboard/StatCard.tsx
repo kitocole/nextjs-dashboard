@@ -6,8 +6,8 @@ export interface StatCardProps {
   value: number;
   unit?: string;
   icon?: React.ReactNode;
-  trend?: 'up' | 'down'; // <-- New optional prop for trend direction
-  trendValue?: number; // <-- New optional prop for trend percentage
+  trend?: 'up' | 'down';
+  trendValue?: number;
 }
 
 export function StatCard({ title, value, unit, icon, trend, trendValue }: StatCardProps) {
@@ -16,7 +16,7 @@ export function StatCard({ title, value, unit, icon, trend, trendValue }: StatCa
       <div className="flex items-center justify-between gap-2">
         <div className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</div>
         {icon && (
-          <div className="bg-muted mr-3 flex h-8 w-8 items-center justify-center rounded-md">
+          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-gray-100 dark:bg-gray-800">
             <div className="text-gray-400 dark:text-gray-500">{icon}</div>
           </div>
         )}
@@ -29,10 +29,10 @@ export function StatCard({ title, value, unit, icon, trend, trendValue }: StatCa
           </span>
         )}
       </div>
-      {trend && trendValue !== undefined && (
+      {trend && trendValue != null && (
         <div
           className={`mt-2 flex items-center text-sm font-medium ${
-            trend === 'up' ? 'text-green-500' : 'text-red-500'
+            trend === 'up' ? 'text-green-500 dark:text-green-400' : 'text-red-500 dark:text-red-400'
           }`}
         >
           {trend === 'up' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />}

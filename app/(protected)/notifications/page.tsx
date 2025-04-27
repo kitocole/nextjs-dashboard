@@ -1,4 +1,4 @@
-//app/(protected)/notifications/page.tsx
+// app/(protected)/notifications/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -33,31 +33,31 @@ export default function NotificationsPage() {
   }, [setUnreadCount]);
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-6 p-6">
-      <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">Notifications</h1>
-      {!loading && notifications.length > 0 && (
-        <button
-          onClick={() => {
-            setNotifications([]);
-          }}
-          className="text-primary ml-auto text-sm hover:underline"
-        >
-          Mark all as read
-        </button>
-      )}
+    <div className="mx-auto max-w-2xl p-6">
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Notifications</h1>
+        {!loading && notifications.length > 0 && (
+          <button
+            onClick={() => setNotifications([])}
+            className="text-blue-500 hover:underline dark:text-blue-400"
+          >
+            Mark all as read
+          </button>
+        )}
+      </div>
 
       {loading ? (
         <div className="space-y-4">
-          <div className="h-16 animate-pulse rounded bg-gray-100 dark:bg-gray-800" />
-          <div className="h-16 animate-pulse rounded bg-gray-100 dark:bg-gray-800" />
-          <div className="h-16 animate-pulse rounded bg-gray-100 dark:bg-gray-800" />
+          {[1, 2, 3].map((key) => (
+            <div key={key} className="h-16 animate-pulse rounded-lg bg-gray-100 dark:bg-gray-800" />
+          ))}
         </div>
       ) : notifications.length > 0 ? (
         <div className="animate-fade-in flex flex-col gap-4">
           {notifications.map((notif) => (
             <div
               key={notif.id}
-              className="flex flex-col rounded-lg border bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900"
+              className="rounded-lg border bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900"
             >
               <div className="font-medium text-gray-900 dark:text-gray-100">{notif.message}</div>
               <div className="text-sm text-gray-500 dark:text-gray-400">{notif.time}</div>
@@ -69,7 +69,6 @@ export default function NotificationsPage() {
           <div className="mb-2 text-2xl font-bold text-gray-700 dark:text-gray-300">
             🎉 You&apos;re all caught up!
           </div>
-
           <div className="text-sm text-gray-500 dark:text-gray-400">No new notifications.</div>
         </div>
       )}

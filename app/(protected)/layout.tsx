@@ -1,3 +1,4 @@
+// app/(protected)/layout.tsx
 import { ReactNode } from 'react';
 import { getServerSession } from 'next-auth/next';
 import { redirect } from 'next/navigation';
@@ -6,16 +7,16 @@ import { Sidebar } from '@/components/layout/Sidebar';
 
 export default async function ProtectedLayout({ children }: { children: ReactNode }) {
   const session = await getServerSession(authOptions);
-  if (!session) redirect('/');
+  if (!session) redirect('/login');
 
   return (
-    <div className="flex flex-1 flex-col overflow-hidden bg-gray-100 md:flex-row dark:bg-gray-950">
-      {/* Sidebar: sticky under the navbar, its own viewport */}
-      <aside className="sticky h-[calc(100vh-2.5rem)]">
+    <div className="flex flex-1 flex-col md:flex-row">
+      {/* Sidebar */}
+      <aside className="sticky top-[2.5rem] h-[calc(100vh-2.5rem)] bg-white dark:bg-gray-900">
         <Sidebar />
       </aside>
 
-      {/* Main content scrolls here */}
+      {/* Main content area flips light↔dark */}
       <div className="flex flex-1 flex-col overflow-hidden bg-white dark:bg-gray-900">
         <main className="flex-1 overflow-y-auto p-4 md:p-8">{children}</main>
       </div>

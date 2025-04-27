@@ -1,14 +1,9 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
-/* 
----break--- */
-
-/* Removed invalid @custom-variant rule */
-
-/* 
----break--- */
-
+/* ------------------------------------------------------------
+   Your CSS-variable theming definitions
+   ------------------------------------------------------------ */
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -48,9 +43,7 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-/* 
----break--- */
-
+/* Root (light mode) variable values */
 :root {
   --radius: 0.625rem;
   --card: oklch(1 0 0);
@@ -87,10 +80,11 @@
 
   /* scrollbar theming */
   --scrollbar-track: transparent;
-  --scrollbar-thumb: rgba(255, 255, 255, 0.2);
-  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.3);
+  --scrollbar-thumb: rgba(0, 0, 0, 0.2);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.3);
 }
 
+/* Dark mode variable overrides */
 .dark {
   --background: oklch(0.13 0.028 261.692);
   --foreground: oklch(0.985 0.002 247.839);
@@ -125,15 +119,18 @@
   --sidebar-ring: oklch(0.551 0.027 264.364);
 }
 
+/* Base styles using those variables */
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
 
+/* Your utilities and animation stuff */
 @layer utilities {
   .animate-fade-in {
     @apply opacity-0 transition-opacity duration-700;
@@ -146,13 +143,11 @@
     }
   }
 
-  /* scrollbar styles */
-  /* Firefox */
+  /* scrollbar */
   * {
     scrollbar-width: thin;
     scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
   }
-  /* WebKit */
   *::-webkit-scrollbar {
     width: 6px;
     height: 6px;
