@@ -3,7 +3,7 @@
 
 /* 
 ---break--- */
-
+@custom-variant dark (&:is(.dark *));
 /* Removed invalid @custom-variant rule */
 
 /* 
