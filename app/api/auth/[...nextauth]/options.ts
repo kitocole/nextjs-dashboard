@@ -18,7 +18,6 @@ export const authOptions: NextAuthOptions = {
       // ← Add this:
       profile(profile) {
         // profile is the raw Google OIDC response
-        console.log('🔍 Google profile:', profile);
         return {
           id: profile.sub,
           name: profile.name,
