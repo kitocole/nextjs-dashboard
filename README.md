@@ -5,8 +5,10 @@ A customizable, responsive dashboard interface built with modern tools:
 - 📊 Animated charts and stat cards
 - 🧩 Drag-and-drop card reordering (dnd-kit)
 - 📦 Zustand store with localStorage
-- 🔒 Auth flow simulation
+- 🔒 Auth flow (Real with Oauth)
 - ⚙️ Dashboard settings and customization
+- Postgres backend with using prisma
+- 
 
 Inspired by tools like Linear and Vercel Admin.
 
