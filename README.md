@@ -1,4 +1,4 @@
-# SaaS Dashboard (Next.js + Tailwind + Zustand)
+# SaaS Dashboard (Next.js + Tailwind + Zustand + Prisma)
 
 A customizable, responsive dashboard interface built with modern tools:
 - 🌗 Dark/Light theme with persistence
