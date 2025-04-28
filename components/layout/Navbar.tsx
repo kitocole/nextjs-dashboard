@@ -43,7 +43,7 @@ export function Navbar() {
           </>
         )}
         <Link href="/" className="text-xl font-bold">
-          Company Name
+          Home
         </Link>
       </div>
 
