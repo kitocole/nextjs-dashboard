@@ -31,7 +31,7 @@ export function Sidebar() {
 
   return (
     <div
-      className={`flex h-screen flex-col p-2 pt-10 shadow-lg transition-all duration-300 ${
+      className={`flex h-screen flex-col p-2 pt-8 shadow-lg transition-all duration-300 ${
         collapsed ? 'w-16' : 'w-48'
       } border-r border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900`}
     >

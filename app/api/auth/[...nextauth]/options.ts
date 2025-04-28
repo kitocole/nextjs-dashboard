@@ -1,4 +1,3 @@
-/* app/api/auth/[...nextauth]/options.ts */
 import type { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import GithubProvider from 'next-auth/providers/github';
@@ -15,11 +14,28 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+
+      // ← Add this:
+      profile(profile) {
+        // profile is the raw Google OIDC response
+        console.log('🔍 Google profile:', profile);
+        return {
+          id: profile.sub,
+          name: profile.name,
+          email: profile.email,
+          image: profile.picture,
+          firstName: profile.given_name,
+          lastName: profile.family_name,
+          emailVerified: profile.email_verified,
+        };
+      },
     }),
+
     GithubProvider({
       clientId: process.env.GITHUB_ID!,
       clientSecret: process.env.GITHUB_SECRET!,
     }),
+
     CredentialsProvider({
       name: 'Email',
       credentials: {
@@ -27,17 +43,9 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        console.log('[demo login] creds:', credentials);
-        const user = await db.user.findUnique({
-          where: { email: credentials!.email },
-        });
-        console.log('[demo login] user from DB:', user);
-        if (!user?.passwordHash) {
-          console.log('[demo login] missing hash; rejecting');
-          return null;
-        }
+        const user = await db.user.findUnique({ where: { email: credentials!.email } });
+        if (!user?.passwordHash) return null;
         const valid = await bcrypt.compare(credentials!.password, user.passwordHash);
-        console.log('[demo login] password match?', valid);
         return valid ? user : null;
       },
     }),

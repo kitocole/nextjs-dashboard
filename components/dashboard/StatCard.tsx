@@ -13,7 +13,7 @@ export interface StatCardProps {
 export function StatCard({ title, value, unit, icon, trend, trendValue }: StatCardProps) {
   return (
     <div className="flex flex-col rounded-lg border bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
-      <div className="flex items-center justify-between gap-2">
+      <div className="mr-3 flex items-center justify-between gap-2">
         <div className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</div>
         {icon && (
           <div className="flex h-8 w-8 items-center justify-center rounded-md bg-gray-100 dark:bg-gray-800">

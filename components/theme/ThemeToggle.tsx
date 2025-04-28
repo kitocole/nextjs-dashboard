@@ -1,34 +1,33 @@
 // app/components/ThemeToggle.tsx
-'use client';
 
 import { useTheme } from 'next-themes';
-import { useEffect, useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
 
 export function ThemeToggle() {
   const { theme, setTheme, systemTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
 
-  // After mounting, we can read the real theme
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null; // avoid hydration mismatch
-
+  // Determine current theme
   const current = theme === 'system' ? systemTheme : theme;
   const isDark = current === 'dark';
 
+  const toggle = () => setTheme(isDark ? 'light' : 'dark');
+
   return (
-    <button
-      onClick={() => setTheme(isDark ? 'light' : 'dark')}
-      aria-label="Toggle dark mode"
-      className="flex items-center gap-2 rounded p-1 hover:bg-gray-200 dark:hover:bg-gray-700"
-    >
-      {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-      <span className="text-sm text-gray-700 dark:text-gray-300">
-        {isDark ? 'Light Mode' : 'Dark Mode'}
-      </span>
+    <button onClick={toggle} aria-label="Toggle dark mode" className="flex items-center">
+      <div
+        className={`relative h-6 w-12 rounded-full ${isDark ? 'bg-gray-700' : 'bg-gray-300'} transition-colors`}
+      >
+        {/* sliding thumb */}
+        <span
+          className={`absolute top-0.5 left-0.5 h-5 w-5 transform rounded-full bg-white shadow transition-transform ${isDark ? 'translate-x-6' : 'translate-x-0'} flex items-center justify-center`}
+        >
+          {isDark ? (
+            <Moon className="h-4 w-4 text-gray-600" />
+          ) : (
+            <Sun className="h-4 w-4 text-yellow-500" />
+          )}
+        </span>
+      </div>
     </button>
   );
 }

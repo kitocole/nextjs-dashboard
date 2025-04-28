@@ -3,11 +3,13 @@
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
-import { Menu as MenuIcon, Bell, Settings as SettingsIcon } from 'lucide-react';
+import { Menu as MenuIcon, Bell, Settings as SettingsIcon, LogOut, Moon, Sun } from 'lucide-react';
 import { useSidebarStore } from './useSidebarStore';
 import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react';
 import Image from 'next/image';
 import { Fragment } from 'react';
+import { useTheme } from 'next-themes';
+import { ThemeToggle } from '../theme/ThemeToggle';
 
 export function Navbar() {
   const pathname = usePathname();
@@ -17,7 +19,12 @@ export function Navbar() {
   const { toggle } = useSidebarStore();
   const { data: session, status } = useSession();
   const isAuthenticated = status === 'authenticated';
+  const { theme, systemTheme } = useTheme();
 
+  // Determine current theme
+  const current = theme === 'system' ? systemTheme : theme;
+  const isDark = current === 'dark';
+  console.log('session', session);
   return (
     <header className="fixed inset-x-0 top-0 z-50 flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
       <div className="flex items-center gap-4">
@@ -55,7 +62,7 @@ export function Navbar() {
           <Menu as="div" className="relative">
             <MenuButton className="flex items-center space-x-2 rounded-full p-1 text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800">
               <Image
-                src={session.user.image || '/default-avatar.png'}
+                src={session.user.image || '/assets/default-avatar.png'}
                 alt="Avatar"
                 width={32}
                 height={32}
@@ -75,11 +82,11 @@ export function Navbar() {
               <MenuItems className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none dark:bg-gray-800">
                 <div className="py-1">
                   <MenuItem>
-                    {({ active }) => (
+                    {({ focus }) => (
                       <Link
                         href="/settings"
                         className={`block px-4 py-2 text-sm ${
-                          active
+                          focus
                             ? 'bg-gray-100 dark:bg-gray-700'
                             : 'text-gray-700 dark:text-gray-300'
                         }`}
@@ -89,16 +96,38 @@ export function Navbar() {
                       </Link>
                     )}
                   </MenuItem>
-                  <MenuItem>
-                    {({ active }) => (
-                      <button
-                        onClick={() => signOut({ callbackUrl: '/' })}
-                        className={`w-full px-4 py-2 text-left text-sm ${
-                          active
+                  <MenuItem as="div" onClick={(e) => e.preventDefault()}>
+                    {({ focus }) => (
+                      <div
+                        className={`flex w-full items-center justify-between px-4 py-2 text-sm ${
+                          focus
                             ? 'bg-gray-100 dark:bg-gray-700'
                             : 'text-gray-700 dark:text-gray-300'
                         }`}
                       >
+                        <div className="flex items-center space-x-2">
+                          {isDark ? (
+                            <Moon className="h-4 w-4 text-gray-600" />
+                          ) : (
+                            <Sun className="h-4 w-4 text-yellow-500" />
+                          )}
+                          <span>Dark Mode</span>
+                        </div>
+                        <ThemeToggle />
+                      </div>
+                    )}
+                  </MenuItem>
+                  <MenuItem>
+                    {({ focus }) => (
+                      <button
+                        onClick={() => signOut({ callbackUrl: '/' })}
+                        className={`w-full px-4 py-2 text-left text-sm ${
+                          focus
+                            ? 'bg-gray-100 dark:bg-gray-700'
+                            : 'text-gray-700 dark:text-gray-300'
+                        }`}
+                      >
+                        <LogOut className="mr-2 inline h-4 w-4" />
                         Sign Out
                       </button>
                     )}
