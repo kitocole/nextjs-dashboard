@@ -45,10 +45,7 @@ export function Sidebar() {
         >
           <div className="fixed inset-0 bg-black/50" aria-hidden="true" />
           <div className="fixed inset-y-0 left-0 w-64 bg-white p-4 dark:bg-gray-900">
-            <button className="mb-4 text-gray-700 dark:text-gray-300" onClick={toggleDrawer}>
-              Close
-            </button>
-            <nav className="flex flex-col gap-2 pt-5">
+            <nav className="flex flex-col gap-2 pt-20">
               {links.map((link) => (
                 <Link
                   key={link.href}
