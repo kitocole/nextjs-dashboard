@@ -11,11 +11,10 @@ export default async function ProtectedLayout({ children }: { children: ReactNod
 
   return (
     <div className="flex flex-1 flex-col md:flex-row">
-      {/* Sidebar */}
-      <aside className="sticky top-[2.5rem] h-[calc(100vh-2.5rem)] bg-white dark:bg-gray-900">
+      {/* desktop-only sidebar */}
+      <aside className="sticky top-[2.5rem] hidden h-[calc(100vh-2.5rem)] bg-white md:block dark:bg-gray-900">
         <Sidebar />
       </aside>
-
       {/* Main content area flips light↔dark */}
       <div className="flex flex-1 flex-col overflow-hidden bg-white dark:bg-gray-900">
         <main className="flex-1 overflow-y-auto p-4 md:p-8">{children}</main>

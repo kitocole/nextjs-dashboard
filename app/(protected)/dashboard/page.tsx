@@ -12,6 +12,7 @@ import {
   UserPlus,
   CreditCard,
   UserX,
+  GripVertical,
 } from 'lucide-react';
 import { SkeletonChart } from '@/components/dashboard/SkeletonChart';
 import { UserTypePie } from '@/components/dashboard/UserTypePie';
@@ -25,7 +26,13 @@ import {
   useSensors,
   DragEndEvent,
 } from '@dnd-kit/core';
-import { arrayMove, SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import SortableCard from '@/components/dashboard/SortableCard';
 
 export default function DashboardPage() {
@@ -48,6 +55,16 @@ export default function DashboardPage() {
       ) as string[];
     }
     return ['revenue', 'users', 'retention', 'signups', 'subscriptions', 'churn'];
+  });
+
+  // --- Charts DnD setup ---
+  const [charts, setCharts] = useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      return JSON.parse(
+        localStorage.getItem('dashboard-charts') || '["line","pie","bar"]',
+      ) as string[];
+    }
+    return ['line', 'pie', 'bar'];
   });
 
   const cardDetails: Record<string, StatCardProps> = useMemo(
@@ -113,7 +130,8 @@ export default function DashboardPage() {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
-  const handleDragEnd = (event: DragEndEvent) => {
+
+  const handleCardDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
       setCards((items) => {
@@ -126,10 +144,27 @@ export default function DashboardPage() {
     }
   };
 
+  const handleChartDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setCharts((items) => {
+        const oldIndex = items.indexOf(active.id as string);
+        const newIndex = items.indexOf(over.id as string);
+        const reordered = arrayMove(items, oldIndex, newIndex);
+        localStorage.setItem('dashboard-charts', JSON.stringify(reordered));
+        return reordered;
+      });
+    }
+  };
+
   return (
     <div className="flex flex-col gap-8 bg-white p-8 text-gray-900 md:p-10 dark:bg-gray-900 dark:text-gray-100">
       {/* Stat cards */}
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleCardDragEnd}
+      >
         <SortableContext items={cards}>
           <div className="animate-fade-in grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-6">
             {loading || !stats
@@ -145,12 +180,48 @@ export default function DashboardPage() {
       {loading ? (
         <SkeletonChart />
       ) : (
-        <div className="animate-fade-in grid gap-6 md:grid-cols-2">
-          <Chart />
-          <UserTypePie />
-          <NewSignupsBar />
-        </div>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleChartDragEnd}
+        >
+          <SortableContext items={charts}>
+            <div className="animate-fade-in grid gap-6 md:grid-cols-2">
+              {charts.map((id) => (
+                <SortableChartItem key={id} id={id}>
+                  {
+                    {
+                      line: <Chart />,
+                      pie: <UserTypePie />,
+                      bar: <NewSignupsBar />,
+                    }[id]
+                  }
+                </SortableChartItem>
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
       )}
+    </div>
+  );
+}
+
+// Sortable wrapper for chart components with drag-handle
+function SortableChartItem({ id, children }: { id: string; children: React.ReactNode }) {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    position: 'relative' as const,
+  };
+  return (
+    <div ref={setNodeRef} style={style}>
+      <GripVertical
+        {...attributes}
+        {...listeners}
+        className="absolute top-2 right-2 cursor-grab text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+      />
+      {children}
     </div>
   );
 }

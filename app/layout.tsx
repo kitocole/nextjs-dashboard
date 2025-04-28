@@ -3,6 +3,7 @@ import './globals.css';
 import { Navbar } from '@/components/layout/Navbar';
 import { SidebarResizeHandler } from '@/components/layout/SidebarResizeHandler';
 import { Providers } from './providers';
+
 export const metadata = {
   title: 'Sandbox App',
   description: 'Kaenys Sandbox App',
@@ -13,14 +14,18 @@ export const metadata = {
     apple: '/assets/favicon.svg', // <link rel="apple-touch-icon">
   },
 };
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
       <body className="flex h-full flex-col">
         <Providers>
+          {/* Nav + (invisible on mobile) sidebar handler */}
           <Navbar />
           <SidebarResizeHandler />
-          <main className="mt-5 flex-1 overflow-hidden">{children}</main>
+
+          {/* allow vertical scrolling */}
+          <main className="mt-5 flex-1 overflow-y-auto">{children}</main>
         </Providers>
       </body>
     </html>

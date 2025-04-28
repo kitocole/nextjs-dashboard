@@ -1,100 +1,79 @@
 // app/page.tsx
-'use client';
-
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import {
-  LineChart,
-  Bell,
-  Settings as Cog,
-  LockKeyhole,
-  ShieldCheck,
-  CreditCard,
-} from 'lucide-react';
+import Link from 'next/link';
+import { Code, LayoutDashboard, Moon, LockKeyhole, ChartPie, Move } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-export default function Home() {
-  const { status } = useSession();
-  const router = useRouter();
-  const isAuthenticated = status === 'authenticated';
-
+export default function HomePage() {
   const features = [
     {
-      icon: <LineChart className="h-10 w-10 text-blue-500 dark:text-blue-400" />,
-      title: 'Analytics Dashboard',
-      description: 'View real-time insights, user growth, and revenue tracking.',
+      icon: <Code className="h-8 w-8 text-blue-500 dark:text-blue-400" />,
+      title: 'Component Showcase',
+      description: 'Browse modular UI components built with Tailwind CSS and React.',
     },
     {
-      icon: <Bell className="h-10 w-10 text-blue-500 dark:text-blue-400" />,
-      title: 'Notification System',
-      description: 'Keep users informed with a dynamic notification feed.',
+      icon: <LayoutDashboard className="h-8 w-8 text-green-500 dark:text-green-400" />,
+      title: 'Dynamic Dashboard',
+      description: 'Drag & drop cards, reorder widgets, and customize your view.',
     },
     {
-      icon: <Cog className="h-10 w-10 text-blue-500 dark:text-blue-400" />,
-      title: 'Customizable Settings',
-      description: 'Manage profile, preferences, and account settings easily.',
+      icon: <Moon className="h-8 w-8 text-purple-500 dark:text-purple-400" />,
+      title: 'Dark & Light Mode',
+      description: 'Toggle themes seamlessly with next-themes integration.',
     },
     {
-      icon: <LockKeyhole className="h-10 w-10 text-blue-500 dark:text-blue-400" />,
+      icon: <LockKeyhole className="h-8 w-8 text-red-500 dark:text-red-400" />,
       title: 'Authentication',
-      description: 'Secure login and logout with protected routes.',
+      description: 'Secure login flows via NextAuth (GitHub & Google).',
     },
     {
-      icon: <ShieldCheck className="h-10 w-10 text-blue-500 dark:text-blue-400" />,
-      title: 'Security Features',
-      description: 'Built with security best practices to protect your data.',
+      icon: <ChartPie className="h-8 w-8 text-yellow-500 dark:text-yellow-400" />,
+      title: 'Data Visualization',
+      description: 'Interactive charts powered by React chart libraries.',
     },
     {
-      icon: <CreditCard className="h-10 w-10 text-blue-500 dark:text-blue-400" />,
-      title: 'Pricing Plans',
-      description: 'Simple, flexible pricing for startups and growing businesses.',
+      icon: <Move className="h-8 w-8 text-indigo-500 dark:text-indigo-400" />,
+      title: 'Drag & Drop',
+      description: 'Intuitive interactions powered by dnd-kit.',
     },
   ];
 
   return (
-    <>
-      {/* Hero Section */}
-      <section className="w-full bg-gradient-to-b from-gray-50 to-white py-20 text-center dark:from-gray-950 dark:to-gray-900">
-        <div className="flex flex-col items-center justify-center px-4">
-          <h1 className="mb-6 max-w-4xl text-5xl font-extrabold text-gray-900 dark:text-gray-100">
-            Build Your SaaS Faster with a Production-Ready Starter
-          </h1>
-          <p className="mb-8 max-w-2xl text-lg text-gray-600 dark:text-gray-400">
-            Save time, ship faster, and focus on what matters — your product.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Button size="lg" onClick={() => router.push('/pricing')}>
-              View Pricing
+    <main className="flex flex-col items-center justify-center space-y-20 bg-gray-50 px-6 py-20 dark:bg-gray-900">
+      {/* Hero */}
+      <section className="max-w-3xl text-center">
+        <h1 className="mb-4 text-5xl font-extrabold text-gray-900 dark:text-gray-100">
+          Welcome to Kaeny&apos;s Sandbox
+        </h1>
+        <p className="mb-8 text-lg text-gray-600 dark:text-gray-300">
+          My app demonstrating Next.js, Tailwind CSS, Zustand, dnd-kit, and more.
+        </p>
+        <div className="flex flex-col justify-center gap-4 sm:flex-row">
+          <Link href="/dashboard">
+            <Button size="lg">Explore Dashboard</Button>
+          </Link>
+          <Link href="/login">
+            <Button size="lg" variant="outline">
+              Sign In
             </Button>
-
-            {isAuthenticated ? (
-              <Button size="lg" variant="outline" onClick={() => router.push('/dashboard')}>
-                View Dashboard
-              </Button>
-            ) : (
-              <Button size="lg" variant="outline" onClick={() => router.push('/login')}>
-                Sign in to Dashboard
-              </Button>
-            )}
-          </div>
+          </Link>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="animate-fade-in mx-auto grid w-full max-w-6xl grid-cols-1 gap-8 px-6 py-16 sm:grid-cols-2 md:grid-cols-3">
-        {features.map((feat, i) => (
+      {/* Features */}
+      <section className="grid w-full max-w-6xl grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3">
+        {features.map((feat) => (
           <div
-            key={i}
-            className="flex flex-col items-center rounded-lg border bg-white p-6 text-center shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-900"
+            key={feat.title}
+            className="flex flex-col items-center rounded-lg bg-white p-6 shadow-sm transition hover:shadow-md dark:bg-gray-800"
           >
-            {feat.icon}
-            <h2 className="mt-4 text-xl font-bold text-gray-900 dark:text-gray-100">
+            <div className="mb-4 rounded-full bg-blue-100 p-4 dark:bg-blue-900">{feat.icon}</div>
+            <h3 className="mb-2 text-xl font-semibold text-gray-900 dark:text-gray-100">
               {feat.title}
-            </h2>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{feat.description}</p>
+            </h3>
+            <p className="text-center text-gray-600 dark:text-gray-300">{feat.description}</p>
           </div>
         ))}
       </section>
-    </>
+    </main>
   );
 }

@@ -25,40 +25,30 @@ export default function UsersPage() {
       .catch(console.error);
   }, []);
 
+  // **1) Pre-sort by lastName ascending** on initial load (and whenever `users` changes)
+  const sortedUsers = useMemo(
+    () => [...users].sort((a, b) => a.lastName.localeCompare(b.lastName)),
+    [users],
+  );
+
   const userColumns = useMemo<ColumnDef<User, unknown>[]>(
     () => [
-      {
-        accessorKey: 'firstName',
-        header: 'First Name',
-        enableColumnFilter: true,
-      },
+      { accessorKey: 'firstName', header: 'First Name', enableColumnFilter: true },
       {
         accessorKey: 'middleName',
         header: 'Middle Name',
         cell: ({ getValue }) => getValue() ?? '—',
         enableColumnFilter: true,
       },
-      {
-        accessorKey: 'lastName',
-        header: 'Last Name',
-        enableColumnFilter: true,
-      },
+      { accessorKey: 'lastName', header: 'Last Name', enableColumnFilter: true },
       {
         accessorKey: 'suffix',
         header: 'Suffix',
         cell: ({ getValue }) => getValue() ?? '—',
         enableColumnFilter: true,
       },
-      {
-        accessorKey: 'email',
-        header: 'Email',
-        enableColumnFilter: true,
-      },
-      {
-        accessorKey: 'role',
-        header: 'Role',
-        enableColumnFilter: true,
-      },
+      { accessorKey: 'email', header: 'Email', enableColumnFilter: true },
+      { accessorKey: 'role', header: 'Role', enableColumnFilter: true },
     ],
     [],
   );
@@ -66,7 +56,10 @@ export default function UsersPage() {
   return (
     <div className="p-8">
       <h1 className="mb-4 text-2xl font-bold">Users</h1>
-      <DataTable<User> data={users} columns={userColumns} />
+      <div className="w-full overflow-x-auto">
+        {/* 2) Render the already-sorted array */}
+        <DataTable<User> data={sortedUsers} columns={userColumns} />
+      </div>
     </div>
   );
 }
