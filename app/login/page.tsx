@@ -1,18 +1,32 @@
 // app/login/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { signIn, useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
+const ERROR_MESSAGES: Record<string, string> = {
+  OAuthAccountNotLinked:
+    'That email is already registered via a different login method. Please sign in using the provider you originally used.',
+  AccessDenied: 'Access denied. Please check your permissions or try again.',
+  Default: 'Unable to sign in. Please try again.',
+};
+
 export default function LoginPage() {
   const { status } = useSession();
   const router = useRouter();
+  const params = useSearchParams();
+  const errorType = params.get('error') ?? '';
+  const errorMessage = useMemo(
+    () => ERROR_MESSAGES[errorType] ?? ERROR_MESSAGES.Default,
+    [errorType],
+  );
+
   const [mode, setMode] = useState<'signIn' | 'signUp'>('signIn');
   const [demo, setDemo] = useState<{ name: string; email: string; password: string } | null>(null);
 
@@ -40,6 +54,11 @@ export default function LoginPage() {
           <CardTitle>{title}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* Error banner */}
+          {errorType && (
+            <div className="mb-4 rounded bg-red-100 p-3 text-red-800">{errorMessage}</div>
+          )}
+
           {/* Demo Users Login */}
           <div className="space-y-2">
             <Label htmlFor="demo">Demo User</Label>

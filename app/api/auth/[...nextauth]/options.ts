@@ -14,10 +14,7 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-
-      // ← Add this:
       profile(profile) {
-        // profile is the raw Google OIDC response
         return {
           id: profile.sub,
           name: profile.name,
@@ -33,6 +30,17 @@ export const authOptions: NextAuthOptions = {
     GithubProvider({
       clientId: process.env.GITHUB_ID!,
       clientSecret: process.env.GITHUB_SECRET!,
+      profile(profile) {
+        return {
+          id: profile.id,
+          email: profile.email,
+          image: profile.avatar_url,
+          firstName: profile.name, //using name as firstName since GitHub doesn't provide firstName and lastName
+          lastName: profile.login, //using login as lastName since GitHub doesn't provide firstName and lastName
+          name: profile.name,
+          emailVerified: null,
+        };
+      },
     }),
 
     CredentialsProvider({
@@ -49,5 +57,5 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
-  pages: { signIn: '/login' },
+  pages: { signIn: '/login', error: '/login' },
 };

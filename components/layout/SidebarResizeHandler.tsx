@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useSidebarStore } from './useSidebarStore';
+import { useSidebarStore } from './SidebarStore';
 
 export function SidebarResizeHandler() {
   const setCollapsed = useSidebarStore((s) => s.setCollapsed);

@@ -20,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>
           <Navbar />
           <SidebarResizeHandler />
-          <main className="mt-8 flex-1 overflow-hidden">{children}</main>
+          <main className="mt-5 flex-1 overflow-hidden">{children}</main>
         </Providers>
       </body>
     </html>

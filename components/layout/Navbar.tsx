@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { Menu as MenuIcon, Bell, Settings as SettingsIcon, LogOut, Moon, Sun } from 'lucide-react';
-import { useSidebarStore } from './useSidebarStore';
+import { useSidebarStore } from './SidebarStore';
 import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react';
 import Image from 'next/image';
 import { Fragment } from 'react';
@@ -16,21 +16,31 @@ export function Navbar() {
   const showToggle = ['/dashboard', '/notifications', '/profile', '/users'].some((p) =>
     pathname.startsWith(p),
   );
-  const { toggle } = useSidebarStore();
+  const toggleDrawer = useSidebarStore((s) => s.toggleDrawer);
+  const toggleCollapse = useSidebarStore((s) => s.toggleCollapse);
+
   const { data: session, status } = useSession();
   const isAuthenticated = status === 'authenticated';
   const { theme, systemTheme, setTheme } = useTheme();
-  const toggleTheme = () => setTheme(isDark ? 'light' : 'dark');
+
   // Determine current theme
   const current = theme === 'system' ? systemTheme : theme;
   const isDark = current === 'dark';
+  const toggleTheme = () => setTheme(isDark ? 'light' : 'dark');
+
   return (
     <header className="fixed inset-x-0 top-0 z-50 flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
       <div className="flex items-center gap-4">
+        {/* Drawer toggle on mobile, collapse toggle on desktop */}
         {showToggle && (
-          <button onClick={toggle} className="p-2">
-            <MenuIcon className="h-6 w-6" />
-          </button>
+          <>
+            <button onClick={toggleDrawer} className="p-2 md:hidden">
+              <MenuIcon className="h-6 w-6" />
+            </button>
+            <button onClick={toggleCollapse} className="hidden p-2 md:block">
+              <MenuIcon className="h-6 w-6" />
+            </button>
+          </>
         )}
         <Link href="/" className="text-xl font-bold">
           Company Name
@@ -95,13 +105,7 @@ export function Navbar() {
                       </Link>
                     )}
                   </MenuItem>
-                  <MenuItem
-                    as="div"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      toggleTheme();
-                    }}
-                  >
+                  <MenuItem as="div" onClick={toggleTheme}>
                     {({ focus }) => (
                       <div
                         className={`flex w-full items-center justify-between px-4 py-2 text-sm ${
