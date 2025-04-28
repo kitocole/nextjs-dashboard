@@ -17,7 +17,7 @@ export default async function ProtectedLayout({ children }: { children: ReactNod
       </aside>
       {/* Main content area flips light↔dark */}
       <div className="flex flex-1 flex-col overflow-hidden bg-white dark:bg-gray-900">
-        <main className="flex-1 overflow-y-auto p-4 md:p-8">{children}</main>
+        <main className="mt-5 flex-1 overflow-y-auto p-4 md:p-8">{children}</main>
       </div>
     </div>
   );
