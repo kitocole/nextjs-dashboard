@@ -6,9 +6,9 @@ import { faker } from '@faker-js/faker';
 const db = new PrismaClient();
 
 // Known suffixes to randomly assign
-const SUFFIXES = ['Jr.', 'Sr.', 'II', 'III', 'IV', 'MD', 'PhD', 'Esq.', '', '', '', '', '', ''];
+const SUFFIXES = ['Jr.', 'Sr.', 'II', 'III', 'IV', 'MD', 'PhD', 'Esq.'];
 function randomSuffix(): string | null {
-  return faker.helpers.arrayElement([...SUFFIXES, null]);
+  return faker.helpers.arrayElement([...SUFFIXES, null, null, null, null, null, null]);
 }
 
 async function main() {

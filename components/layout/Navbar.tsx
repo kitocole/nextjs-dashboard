@@ -19,8 +19,8 @@ export function Navbar() {
   const { toggle } = useSidebarStore();
   const { data: session, status } = useSession();
   const isAuthenticated = status === 'authenticated';
-  const { theme, systemTheme } = useTheme();
-
+  const { theme, systemTheme, setTheme } = useTheme();
+  const toggleTheme = () => setTheme(isDark ? 'light' : 'dark');
   // Determine current theme
   const current = theme === 'system' ? systemTheme : theme;
   const isDark = current === 'dark';
@@ -95,7 +95,13 @@ export function Navbar() {
                       </Link>
                     )}
                   </MenuItem>
-                  <MenuItem as="div" onClick={(e) => e.preventDefault()}>
+                  <MenuItem
+                    as="div"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      toggleTheme();
+                    }}
+                  >
                     {({ focus }) => (
                       <div
                         className={`flex w-full items-center justify-between px-4 py-2 text-sm ${
