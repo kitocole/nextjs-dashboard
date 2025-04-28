@@ -23,7 +23,7 @@ Inspired by tools like Linear and Vercel Admin.
 TBD
 
 ## Live Demo
-[Hosted  on Vercel](https://nextjs-dashboard-8twexy3zp-kitocoles-projects.vercel.app/)
+[Hosted  on Vercel](https://nextjs-dashboard-kitocoles-projects.vercel.app/)
 ## Setup
 ```bash
 npm install
