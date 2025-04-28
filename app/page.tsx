@@ -20,32 +20,32 @@ export default function Home() {
 
   const features = [
     {
-      icon: <LineChart className="text-primary h-10 w-10" />,
+      icon: <LineChart className="h-10 w-10 text-blue-500 dark:text-blue-400" />,
       title: 'Analytics Dashboard',
       description: 'View real-time insights, user growth, and revenue tracking.',
     },
     {
-      icon: <Bell className="text-primary h-10 w-10" />,
+      icon: <Bell className="h-10 w-10 text-blue-500 dark:text-blue-400" />,
       title: 'Notification System',
       description: 'Keep users informed with a dynamic notification feed.',
     },
     {
-      icon: <Cog className="text-primary h-10 w-10" />,
+      icon: <Cog className="h-10 w-10 text-blue-500 dark:text-blue-400" />,
       title: 'Customizable Settings',
       description: 'Manage profile, preferences, and account settings easily.',
     },
     {
-      icon: <LockKeyhole className="text-primary h-10 w-10" />,
+      icon: <LockKeyhole className="h-10 w-10 text-blue-500 dark:text-blue-400" />,
       title: 'Authentication',
       description: 'Secure login and logout with protected routes.',
     },
     {
-      icon: <ShieldCheck className="text-primary h-10 w-10" />,
+      icon: <ShieldCheck className="h-10 w-10 text-blue-500 dark:text-blue-400" />,
       title: 'Security Features',
       description: 'Built with security best practices to protect your data.',
     },
     {
-      icon: <CreditCard className="text-primary h-10 w-10" />,
+      icon: <CreditCard className="h-10 w-10 text-blue-500 dark:text-blue-400" />,
       title: 'Pricing Plans',
       description: 'Simple, flexible pricing for startups and growing businesses.',
     },
@@ -54,8 +54,8 @@ export default function Home() {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative w-full bg-gradient-to-b from-gray-50 to-white py-20 text-center dark:from-gray-950 dark:to-gray-900">
-        <div className="flex flex-col items-center justify-center">
+      <section className="w-full bg-gradient-to-b from-gray-50 to-white py-20 text-center dark:from-gray-950 dark:to-gray-900">
+        <div className="flex flex-col items-center justify-center px-4">
           <h1 className="mb-6 max-w-4xl text-5xl font-extrabold text-gray-900 dark:text-gray-100">
             Build Your SaaS Faster with a Production-Ready Starter
           </h1>

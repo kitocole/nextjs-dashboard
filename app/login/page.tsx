@@ -1,4 +1,4 @@
-/* app/login/page.tsx */
+// app/login/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -25,8 +25,8 @@ export default function LoginPage() {
 
   if (status === 'loading') {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <p>Loading…</p>
+      <div className="flex h-screen items-center justify-center bg-white dark:bg-gray-900">
+        <p className="text-gray-900 dark:text-gray-100">Loading…</p>
       </div>
     );
   }
@@ -35,7 +35,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md bg-white text-gray-900 dark:bg-gray-800 dark:text-gray-100">
         <CardHeader>
           <CardTitle>{title}</CardTitle>
         </CardHeader>
@@ -49,7 +49,7 @@ export default function LoginPage() {
                 const [name, email] = e.target.value.split('|');
                 setDemo({ name, email, password: 'changeme' });
               }}
-              className="w-full rounded border bg-white p-2 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+              className="w-full rounded border border-gray-300 bg-white p-2 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
             >
               <option value="">Select a demo account</option>
               <option value="Admin|admin@example.com">Admin</option>
@@ -70,6 +70,7 @@ export default function LoginPage() {
               {demo ? `Login as ${demo.name}` : 'Choose a demo account'}
             </Button>
           </div>
+
           {/* Local form */}
           <form className="space-y-4">
             {mode === 'signUp' && (
@@ -101,7 +102,7 @@ export default function LoginPage() {
           <div className="space-y-4">
             <Button
               variant="outline"
-              className="flex w-full items-center justify-center gap-2"
+              className="flex w-full items-center justify-center gap-2 bg-white dark:bg-gray-700"
               onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
             >
               <Image
@@ -122,7 +123,7 @@ export default function LoginPage() {
             </Button>
             <Button
               variant="outline"
-              className="flex w-full items-center justify-center gap-2"
+              className="flex w-full items-center justify-center gap-2 bg-white dark:bg-gray-700"
               onClick={() => signIn('github', { callbackUrl: '/dashboard' })}
             >
               <Image
@@ -146,16 +147,22 @@ export default function LoginPage() {
           {/* Toggle link below all options */}
           <div className="text-center">
             {mode === 'signIn' ? (
-              <p>
+              <p className="text-gray-700 dark:text-gray-300">
                 or{' '}
-                <button onClick={() => setMode('signUp')} className="text-blue-600 hover:underline">
+                <button
+                  onClick={() => setMode('signUp')}
+                  className="text-blue-600 hover:underline dark:text-blue-400"
+                >
                   Sign Up instead
                 </button>
               </p>
             ) : (
-              <p>
+              <p className="text-gray-700 dark:text-gray-300">
                 or{' '}
-                <button onClick={() => setMode('signIn')} className="text-blue-600 hover:underline">
+                <button
+                  onClick={() => setMode('signIn')}
+                  className="text-blue-600 hover:underline dark:text-blue-400"
+                >
                   Sign In instead
                 </button>
               </p>

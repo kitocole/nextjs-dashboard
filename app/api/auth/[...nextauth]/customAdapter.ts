@@ -8,14 +8,18 @@ export function CustomAdapter() {
   return {
     ...adapter,
     // Override only createUser:
-    async createUser(data: { emailVerified: Date; name: string; email: string; image: string }) {
-      const [firstName = '', ...rest] = (data.name || '').split(' ');
-      const lastName = rest.join(' ') || firstName;
-
+    async createUser(data: {
+      id: string; //unique id for google
+      emailVerified: boolean;
+      email: string;
+      image: string;
+      firstName: string;
+      lastName: string;
+    }) {
       return db.user.create({
         data: {
-          firstName,
-          lastName,
+          firstName: data.firstName,
+          lastName: data.lastName,
           middleName: null,
           suffix: null,
           email: data.email!,
@@ -23,7 +27,6 @@ export function CustomAdapter() {
           emailVerified: data.emailVerified,
           role: 'User',
           passwordHash: '', // or null if nullable
-          name: data.name,
         },
       });
     },

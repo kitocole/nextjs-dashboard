@@ -1,3 +1,4 @@
+// app/components/dashboard/UserTypePie.tsx
 'use client';
 
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
@@ -24,15 +25,28 @@ export function UserTypePie() {
             cy="50%"
             label={({ name, percent }) => `${name} - ${(percent * 100).toFixed(0)}%`}
             outerRadius={100}
-            fill="#8884d8"
             dataKey="value"
             nameKey="name"
           >
             {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              <Cell key={index} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
-          <Tooltip />
+
+          <Tooltip
+            contentStyle={{
+              backgroundColor: 'white',
+              borderColor: '#E5E7EB', // gray-200
+            }}
+            itemStyle={{
+              color: '#111827', // gray-900
+            }}
+            wrapperStyle={{
+              boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+            }}
+            // dark-mode overrides
+            cursor={{ fill: 'rgba(0,0,0,0.1)' }}
+          />
         </PieChart>
       </ResponsiveContainer>
     </div>

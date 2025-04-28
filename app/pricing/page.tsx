@@ -1,8 +1,7 @@
-// pricing/page.tsx
+// app/pricing/page.tsx
 'use client';
 
 import { useState } from 'react';
-
 import { Button } from '@/components/ui/button';
 
 export default function PricingPage() {
@@ -44,50 +43,61 @@ export default function PricingPage() {
       <p className="mb-12 max-w-2xl text-center text-gray-600 dark:text-gray-400">
         Choose the plan that&apos;s right for you and start building your SaaS today.
       </p>
+
+      {/* Toggle */}
       <div className="mb-8 flex items-center gap-4">
         <span
-          className={`cursor-pointer ${!annual ? 'text-primary font-bold' : 'text-gray-500 dark:text-gray-400'}`}
           onClick={() => setAnnual(false)}
+          className={`cursor-pointer ${
+            !annual
+              ? 'font-semibold text-blue-500 dark:text-blue-400'
+              : 'text-gray-500 dark:text-gray-400'
+          }`}
         >
           Monthly
         </span>
         <div
-          className="relative flex h-8 w-14 cursor-pointer items-center rounded-full bg-gray-300 p-1 dark:bg-gray-700"
           onClick={() => setAnnual(!annual)}
+          className="relative flex h-8 w-14 cursor-pointer items-center rounded-full bg-gray-300 p-1 dark:bg-gray-700"
         >
           <div
-            className={`h-6 w-6 transform rounded-full bg-white shadow-md duration-300 ease-in-out dark:bg-gray-900 ${
+            className={`h-6 w-6 transform rounded-full bg-white shadow-md transition-transform duration-300 ease-in-out dark:bg-gray-900 ${
               annual ? 'translate-x-6' : ''
             }`}
           />
         </div>
         <span
-          className={`cursor-pointer ${annual ? 'text-primary font-bold' : 'text-gray-500 dark:text-gray-400'}`}
           onClick={() => setAnnual(true)}
+          className={`cursor-pointer ${
+            annual
+              ? 'font-semibold text-blue-500 dark:text-blue-400'
+              : 'text-gray-500 dark:text-gray-400'
+          }`}
         >
           Annual
         </span>
       </div>
 
+      {/* Plans Grid */}
       <div className="grid w-full max-w-6xl grid-cols-1 gap-8 md:grid-cols-3">
         {plans.map((plan) => (
           <div
             key={plan.title}
             className={`flex flex-col items-center rounded-lg border p-8 transition-transform duration-300 hover:scale-105 ${
               plan.highlighted
-                ? 'bg-primary/5 dark:bg-primary/10 border-primary dark:border-primary scale-105 shadow-md'
+                ? 'scale-105 border-blue-500 bg-blue-50 shadow-md dark:border-blue-400 dark:bg-blue-900/10'
                 : 'border bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900'
             }`}
           >
             {plan.highlighted && (
-              <div className="bg-primary/10 text-primary mb-4 rounded-full px-3 py-1 text-sm font-medium">
+              <div className="mb-4 rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-500 dark:bg-blue-900/20 dark:text-blue-400">
                 Best Value
               </div>
             )}
             <h2 className="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
               {plan.title}
             </h2>
-            <p className="text-primary mb-6 text-3xl font-bold">
+            <p className="mb-6 text-3xl font-bold text-blue-500 dark:text-blue-400">
               {annual ? plan.annual : plan.monthly}
             </p>
             <ul className="mb-6 space-y-3 text-center text-gray-600 dark:text-gray-400">
