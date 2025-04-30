@@ -8,10 +8,10 @@ export function CustomAdapter() {
   return {
     ...adapter,
     // Override only createUser:
+    // Note: emailVerified comes in as `boolean | null` from your profile() mappers
     async createUser(data: {
-      id: string; //unique id for google
-      emailVerified: boolean;
       email: string;
+      emailVerified: boolean | null;
       image: string;
       firstName: string;
       lastName: string;
@@ -22,11 +22,12 @@ export function CustomAdapter() {
           lastName: data.lastName,
           middleName: null,
           suffix: null,
-          email: data.email!,
+          email: data.email,
           image: data.image,
-          emailVerified: data.emailVerified,
+          // convert boolean → Date or leave null
+          emailVerified: data.emailVerified ? new Date() : null,
           role: 'User',
-          passwordHash: '', // or null if nullable
+          passwordHash: '', // leave blank for OAuth users
         },
       });
     },
