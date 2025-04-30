@@ -11,7 +11,6 @@ export default async function ProtectedLayout({ children }: { children: ReactNod
 
   return (
     <div className="flex flex-1 flex-col md:flex-row">
-      {/* desktop-only sidebar */}
       <aside className="sticky top-[2.5rem] hidden h-[calc(100vh-2.5rem)] bg-white md:block dark:bg-gray-900">
         <Sidebar />
       </aside>
