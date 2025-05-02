@@ -131,7 +131,36 @@ export default function DashboardPage() {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
-  const handleCardDragEnd = (event: DragEndEvent) => {
+  // 1️⃣ Load layout from server, then localStorage fallback
+  useEffect(() => {
+    fetch('/api/dashboard/layout')
+      .then((res) => res.json())
+      .then((user) => {
+        if (user.dashboardCards) setCards(user.dashboardCards);
+        else if (typeof window !== 'undefined') {
+          setCards(
+            JSON.parse(
+              localStorage.getItem('dashboard-cards') ||
+                '["revenue","users","retention","signups","subscriptions","churn"]',
+            ),
+          );
+        }
+        if (user.dashboardCharts) setCharts(user.dashboardCharts);
+        else if (typeof window !== 'undefined') {
+          setCharts(JSON.parse(localStorage.getItem('dashboard-charts') || '["line","pie","bar"]'));
+        }
+      })
+      .catch(() => {
+        // fallback if API fails
+        if (typeof window !== 'undefined') {
+          setCards(JSON.parse(localStorage.getItem('dashboard-cards')!));
+          setCharts(JSON.parse(localStorage.getItem('dashboard-charts')!));
+        }
+      });
+  }, []);
+
+  // 2️⃣ On drag end, update both localStorage & API
+  const handleCardDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
       setCards((items) => {
@@ -139,12 +168,18 @@ export default function DashboardPage() {
         const newIndex = items.indexOf(over.id as string);
         const reordered = arrayMove(items, oldIndex, newIndex);
         localStorage.setItem('dashboard-cards', JSON.stringify(reordered));
+        // fire API update (no need to await UI)
+        fetch('/api/dashboard/layout', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dashboardCards: reordered }),
+        }).catch(console.error);
         return reordered;
       });
     }
   };
 
-  const handleChartDragEnd = (event: DragEndEvent) => {
+  const handleChartDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
       setCharts((items) => {
@@ -152,13 +187,18 @@ export default function DashboardPage() {
         const newIndex = items.indexOf(over.id as string);
         const reordered = arrayMove(items, oldIndex, newIndex);
         localStorage.setItem('dashboard-charts', JSON.stringify(reordered));
+        fetch('/api/dashboard/layout', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dashboardCharts: reordered }),
+        }).catch(console.error);
         return reordered;
       });
     }
   };
 
   return (
-    <div className="flex flex-col gap-8 bg-white p-8 text-gray-900 md:p-10 dark:bg-gray-900 dark:text-gray-100">
+    <div className="flex flex-col gap-8 bg-white p-8 text-gray-900 dark:bg-gray-900 dark:text-gray-100">
       {/* Stat cards */}
       <DndContext
         sensors={sensors}

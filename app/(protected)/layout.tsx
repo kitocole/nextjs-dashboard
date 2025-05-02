@@ -10,11 +10,12 @@ export default async function ProtectedLayout({ children }: { children: ReactNod
   if (!session) redirect('/login');
 
   return (
-    <div className="flex flex-1 flex-col md:flex-row">
+    <div className="mt-5 flex flex-1 flex-col md:flex-row">
+      {/* Sidebar for larger screens */}
       <aside className="sticky top-[2.5rem] hidden h-[calc(100vh-2.5rem)] bg-white md:block dark:bg-gray-900">
         <Sidebar />
       </aside>
-      {/* Main content area flips light↔dark */}
+      {/* Main content area */}
       <div className="flex flex-1 flex-col overflow-hidden bg-white dark:bg-gray-900">
         <main className="mt-5 flex-1 overflow-y-auto p-4 md:p-8">{children}</main>
       </div>

@@ -18,8 +18,10 @@ model User {
   suffix        String?
   role          String
   passwordHash  String
+  dashboardCards  Json?    // ← store ["revenue","users",…]
+  dashboardCharts Json?    // ← store ["line","pie","bar"]
   createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now())  @updatedAt  // <-- optional, but handy
+  updatedAt     DateTime  @default(now())  @updatedAt
 
   // NextAuth relations:
   accounts      Account[] 
