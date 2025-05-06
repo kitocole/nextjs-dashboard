@@ -12,7 +12,6 @@ import {
   UserPlus,
   CreditCard,
   UserX,
-  GripVertical,
 } from 'lucide-react';
 import { SkeletonChart } from '@/components/dashboard/SkeletonChart';
 import { UserTypePie } from '@/components/dashboard/UserTypePie';
@@ -26,14 +25,9 @@ import {
   useSensors,
   DragEndEvent,
 } from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import SortableCard from '@/components/dashboard/SortableCard';
+import SortableChartItem from '@/components/dashboard/SortableChartItem';
 
 export default function DashboardPage() {
   // --- Stats cards + DnD setup ---
@@ -247,21 +241,3 @@ export default function DashboardPage() {
 }
 
 // Sortable wrapper for chart components with drag-handle
-function SortableChartItem({ id, children }: { id: string; children: React.ReactNode }) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    position: 'relative' as const,
-  };
-  return (
-    <div ref={setNodeRef} style={style}>
-      <GripVertical
-        {...attributes}
-        {...listeners}
-        className="absolute top-2 right-2 cursor-grab text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-      />
-      {children}
-    </div>
-  );
-}

@@ -1,9 +1,13 @@
+// app/api/auth/[...nextauth]/route.ts
 import type { NextAuthOptions } from 'next-auth';
+import type { User as PrismaUser } from '@prisma/client';
+
 import GoogleProvider from 'next-auth/providers/google';
 import GithubProvider from 'next-auth/providers/github';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { db } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
+
+import { db } from '@/lib/prisma';
 import { CustomAdapter } from './customAdapter';
 
 export const authOptions: NextAuthOptions = {
@@ -23,26 +27,30 @@ export const authOptions: NextAuthOptions = {
           firstName: profile.given_name,
           lastName: profile.family_name,
           emailVerified: profile.email_verified,
+          role: 'user', // Default role or fetch dynamically if needed
+          middleName: '', // Default or fetch dynamically
+          suffix: '', // Default or fetch dynamically
         };
       },
     }),
-
     GithubProvider({
       clientId: process.env.GITHUB_ID!,
       clientSecret: process.env.GITHUB_SECRET!,
       profile(profile) {
         return {
           id: profile.id,
-          email: profile.email,
-          image: profile.avatar_url,
-          firstName: profile.name, //using name as firstName since GitHub doesn't provide firstName and lastName
-          lastName: profile.login, //using login as lastName since GitHub doesn't provide firstName and lastName
           name: profile.name,
+          email: profile.email ?? undefined,
+          image: profile.avatar_url,
+          firstName: profile.name ?? '',
+          lastName: profile.login,
           emailVerified: null,
+          role: 'user', // Default role or fetch dynamically if needed
+          middleName: '', // Default or fetch dynamically
+          suffix: '', // Default or fetch dynamically
         };
       },
     }),
-
     CredentialsProvider({
       name: 'Email',
       credentials: {
@@ -50,12 +58,35 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        const user = await db.user.findUnique({ where: { email: credentials!.email } });
+        if (!credentials) return null;
+        const user = await db.user.findUnique({
+          where: { email: credentials.email },
+        });
         if (!user?.passwordHash) return null;
-        const valid = await bcrypt.compare(credentials!.password, user.passwordHash);
-        return valid ? user : null;
+        const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
+        return isValid ? (user as PrismaUser) : null;
       },
     }),
   ],
-  pages: { signIn: '/login', error: '/login' },
+
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = user.role;
+      }
+      return token;
+    },
+
+    async session({ session, token }) {
+      if (session.user && token.role) {
+        session.user.role = token.role;
+      }
+      return session;
+    },
+  },
+
+  pages: {
+    signIn: '/login',
+    error: '/login',
+  },
 };

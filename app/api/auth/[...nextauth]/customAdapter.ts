@@ -15,6 +15,7 @@ export function CustomAdapter() {
       image: string;
       firstName: string;
       lastName: string;
+      role: string;
     }) {
       return db.user.create({
         data: {
