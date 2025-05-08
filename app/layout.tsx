@@ -20,11 +20,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className="h-full" suppressHydrationWarning>
       <body className="flex h-full flex-col" suppressHydrationWarning>
         <Providers>
-          {/* Nav + (invisible on mobile) sidebar handler */}
           <Navbar />
           <SidebarResizeHandler />
-
-          {/* allow vertical scrolling */}
           <main className="mt-5 flex-1 overflow-y-auto">{children}</main>
         </Providers>
       </body>

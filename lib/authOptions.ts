@@ -1,4 +1,4 @@
-// app/api/auth/[...nextauth]/route.ts
+// app/lib/route.ts
 import type { NextAuthOptions } from 'next-auth';
 import type { User as PrismaUser } from '@prisma/client';
 
@@ -14,6 +14,23 @@ export const authOptions: NextAuthOptions = {
   adapter: CustomAdapter(),
   secret: process.env.NEXTAUTH_SECRET,
   session: { strategy: 'jwt' },
+  jwt: {
+    secret: process.env.NEXTAUTH_SECRET,
+  },
+  cookies: {
+    sessionToken: {
+      name:
+        process.env.NODE_ENV === 'production'
+          ? '__Secure-next-auth.session-token'
+          : 'next-auth.session-token',
+      options: {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/',
+      },
+    },
+  },
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -72,14 +89,14 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = user.role;
+        token.role = user.role; // Add user role to the token
       }
       return token;
     },
 
     async session({ session, token }) {
       if (session.user && token.role) {
-        session.user.role = token.role;
+        session.user.role = token.role; // Add role to the session
       }
       return session;
     },

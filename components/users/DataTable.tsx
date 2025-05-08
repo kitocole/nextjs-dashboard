@@ -115,12 +115,12 @@ export function DataTable<T extends RowData>({ data, columns }: DataTableProps<T
               <MenuItems className="absolute right-0 z-20 mt-2 w-40 rounded border bg-white shadow-md dark:bg-gray-800">
                 <div className="py-1">
                   <MenuItem>
-                    {({ active }) => (
+                    {({ focus }) => (
                       <CSVLink
                         data={memoizedData as unknown as object[]}
                         filename="export.csv"
                         className={`block px-4 py-2 text-sm ${
-                          active ? 'bg-gray-100 dark:bg-gray-700' : ''
+                          focus ? 'bg-gray-100 dark:bg-gray-700' : ''
                         }`}
                       >
                         Export CSV
@@ -138,7 +138,7 @@ export function DataTable<T extends RowData>({ data, columns }: DataTableProps<T
       </div>
 
       {/* Table with fixed header + scrollable body */}
-      <div className={`overflow-auto ${isExpanded ? 'max-h-screen' : 'max-h-[400px]'}`}>
+      <div className={`overflow-auto ${isExpanded ? 'max-h-screen' : 'max-h-[600px]'}`}>
         <table className="w-full table-fixed border-collapse">
           <colgroup>
             {table.getAllLeafColumns().map((col) => (

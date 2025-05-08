@@ -1,34 +1,41 @@
 // app/api/dashboard/layout/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/options';
 import { db } from '@/lib/prisma';
+import { getAuthenticatedUser } from '@/lib/auth';
 
-export async function GET() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+export async function GET(req: NextRequest) {
+  try {
+    const token = await getAuthenticatedUser(req);
+    // Fetch user data from the database
+    const user = await db.user.findUnique({
+      where: { email: token.email ?? undefined },
+      select: { dashboardCards: true, dashboardCharts: true },
+    });
+
+    return NextResponse.json(user);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    return NextResponse.json({ error: errorMessage }, { status: 401 });
   }
-
-  const user = await db.user.findUnique({
-    where: { email: session.user.email },
-    select: { dashboardCards: true, dashboardCharts: true },
-  });
-  return NextResponse.json(user);
 }
-export async function PUT(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-  }
 
-  const { dashboardCards, dashboardCharts } = await req.json();
-  const updated = await db.user.update({
-    where: { email: session.user.email },
-    data: {
-      dashboardCards,
-      dashboardCharts,
-    },
-  });
-  return NextResponse.json(updated);
+export async function PUT(req: NextRequest) {
+  try {
+    const token = await getAuthenticatedUser(req);
+    // Parse the request body
+    const { dashboardCards, dashboardCharts } = await req.json();
+    // Update user data in the database
+    const updated = await db.user.update({
+      where: { email: token.email ?? undefined },
+      data: {
+        dashboardCards,
+        dashboardCharts,
+      },
+    });
+
+    return NextResponse.json(updated);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    return NextResponse.json({ error: errorMessage }, { status: 401 });
+  }
 }

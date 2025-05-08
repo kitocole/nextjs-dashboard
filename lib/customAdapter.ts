@@ -1,4 +1,4 @@
-// app/api/auth/[...nextauth]/customAdapter.ts
+// app/lib/customAdapter.ts
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { db } from '@/lib/prisma';
 

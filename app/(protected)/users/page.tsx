@@ -116,7 +116,12 @@ export default function UsersPage() {
           const accounts = getValue() as { provider: string }[];
           return accounts.length ? accounts.map((a) => a.provider).join(', ') : 'None';
         },
-        enableColumnFilter: false,
+        enableColumnFilter: true,
+      },
+      {
+        header: 'createdAt',
+        accessorKey: 'createdAt',
+        enableColumnFilter: true,
       },
     ],
     [openModal],

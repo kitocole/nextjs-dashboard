@@ -71,7 +71,7 @@ export function Navbar() {
           <Menu as="div" className="relative">
             <MenuButton className="flex items-center space-x-2 rounded-full p-1 text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800">
               <Image
-                src={session.user.image || '/assets/default-avatar.png'}
+                src={session.user.image || '/assets/default-avatar.svg'}
                 alt="Avatar"
                 width={32}
                 height={32}

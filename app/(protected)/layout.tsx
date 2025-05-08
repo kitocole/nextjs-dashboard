@@ -2,7 +2,7 @@
 import { ReactNode } from 'react';
 import { getServerSession } from 'next-auth/next';
 import { redirect } from 'next/navigation';
-import { authOptions } from '../api/auth/[...nextauth]/options';
+import { authOptions } from '../../lib/authOptions';
 import { Sidebar } from '@/components/layout/Sidebar';
 
 export default async function ProtectedLayout({ children }: { children: ReactNode }) {
