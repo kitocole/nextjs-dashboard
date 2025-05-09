@@ -24,7 +24,7 @@ async function main() {
     {
       firstName: 'Admin2',
       lastName: 'Admin2',
-      role: 'ADMIN',
+      role: 'ADMIN' as Role,
       email: 'admin2@example.com',
       password: 'changeme',
     },

@@ -17,7 +17,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const { status } = useSession();
   const isLoggedIn = status === 'authenticated';
-  const { collapsed, isOpen, toggleDrawer } = useSidebarStore();
+  const { isOpen, toggleDrawer } = useSidebarStore();
 
   const base = 'px-3 rounded-md transition-colors flex items-center gap-2 py-4';
   const active = 'bg-blue-500 text-white';
@@ -35,17 +35,12 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Mobile Drawer */}
+      {/* Drawer Sidebar for all screen sizes */}
       <Transition show={isOpen} as={Fragment}>
-        <Dialog
-          as="div"
-          className="fixed inset-0 z-40 md:hidden"
-          open={isOpen}
-          onClose={toggleDrawer}
-        >
+        <Dialog as="div" className="fixed inset-0 z-40" open={isOpen} onClose={toggleDrawer}>
           <div className="fixed inset-0 bg-black/50" aria-hidden="true" />
           <div className="fixed inset-y-0 left-0 w-64 bg-white p-4 dark:bg-gray-900">
-            <nav className="flex flex-col gap-2 pt-20">
+            <nav className="flex flex-col gap-2 pt-15">
               {links.map((link) => (
                 <Link
                   key={link.href}
@@ -61,24 +56,6 @@ export function Sidebar() {
           </div>
         </Dialog>
       </Transition>
-
-      {/* Desktop Sidebar */}
-      <div
-        className={
-          `hidden h-full flex-col p-2 pt-8 shadow-lg transition-all duration-300 md:flex ` +
-          `${collapsed ? 'w-16' : 'w-64'} ` +
-          `border-r border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900`
-        }
-      >
-        <nav className="flex flex-1 flex-col gap-2">
-          {links.map((link) => (
-            <Link key={link.href} href={link.href} className={linkClasses(link.href)}>
-              <link.icon className="h-5 w-5" />
-              {!collapsed && link.label}
-            </Link>
-          ))}
-        </nav>
-      </div>
     </>
   );
 }

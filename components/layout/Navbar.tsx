@@ -1,6 +1,5 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import {
@@ -22,12 +21,7 @@ import { INotification } from '../notifications/types';
 import { useNotificationStore } from '@/components/notifications/notificationsStore';
 
 export function Navbar() {
-  const pathname = usePathname();
-  const showToggle = ['/dashboard', '/notifications', '/profile', '/users', '/settings'].some((p) =>
-    pathname.startsWith(p),
-  );
   const toggleDrawer = useSidebarStore((s) => s.toggleDrawer);
-  const toggleCollapse = useSidebarStore((s) => s.toggleCollapse);
 
   const { data: session, status } = useSession();
   const isAuthenticated = status === 'authenticated';
@@ -71,17 +65,10 @@ export function Navbar() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
       <div className="flex items-center gap-4">
-        {/* Drawer toggle on mobile, collapse toggle on desktop */}
-        {showToggle && (
-          <>
-            <button onClick={toggleDrawer} className="p-2 md:hidden">
-              <MenuIcon className="h-6 w-6" />
-            </button>
-            <button onClick={toggleCollapse} className="hidden p-2 md:block">
-              <MenuIcon className="h-6 w-6" />
-            </button>
-          </>
-        )}
+        <button onClick={toggleDrawer} className="p-2">
+          <MenuIcon className="h-6 w-6" />
+        </button>
+
         <Link href="/" className="text-xl font-bold">
           Home
         </Link>

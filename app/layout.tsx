@@ -1,7 +1,7 @@
 // app/layout.tsx
 import './globals.css';
 import { Navbar } from '@/components/layout/Navbar';
-import { SidebarResizeHandler } from '@/components/layout/SidebarResizeHandler';
+import { Sidebar } from '@/components/layout/Sidebar'; // Import Sidebar
 import { Providers } from './providers';
 
 export const metadata = {
@@ -21,8 +21,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="flex h-full flex-col" suppressHydrationWarning>
         <Providers>
           <Navbar />
-          <SidebarResizeHandler />
-          <main className="mt-5 flex-1 overflow-y-auto">{children}</main>
+          <div className="flex flex-1">
+            <Sidebar />
+            <main className="mt-5 flex-1 overflow-y-auto">{children}</main>
+          </div>
         </Providers>
       </body>
     </html>
