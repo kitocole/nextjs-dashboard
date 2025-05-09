@@ -77,7 +77,7 @@ export default function LoginPageClient({ initialError }: LoginPageClientProps) 
             >
               <option value="">Select a demo account</option>
               <option value="Admin|admin@example.com">Admin</option>
-              <option value="Editor|editor@example.com">Editor</option>
+              <option value="User|editor@example.com">User</option>
             </select>
             <Button
               variant="outline"

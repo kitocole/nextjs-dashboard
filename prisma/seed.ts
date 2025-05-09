@@ -15,7 +15,7 @@ async function main() {
   // 1) Upsert demo users
   const demos = [
     { firstName: 'Admin', lastName: 'Admin', email: 'admin@example.com', password: 'changeme' },
-    { firstName: 'Editor', lastName: 'User', email: 'editor@example.com', password: 'changeme' },
+    { firstName: 'User', lastName: 'User', email: 'editor@example.com', password: 'changeme' },
   ];
 
   for (const u of demos) {
