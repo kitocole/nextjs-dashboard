@@ -1,4 +1,3 @@
-// components/LoginPageClient.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -25,17 +24,21 @@ export default function LoginPageClient({ initialError }: LoginPageClientProps) 
   const { status } = useSession();
   const router = useRouter();
 
-  // derive error message
   const errorMessage = ERROR_MESSAGES[initialError] ?? ERROR_MESSAGES.Default;
 
   const [mode, setMode] = useState<'signIn' | 'signUp'>('signIn');
-  const [demo, setDemo] = useState<{
-    name: string;
-    email: string;
-    password: string;
-  } | null>(null);
+  const [demo, setDemo] = useState<{ name: string; email: string; password: string } | null>(null);
 
-  // redirect if already signed in
+  const [form, setForm] = useState({
+    firstName: '',
+    middleName: '',
+    lastName: '',
+    suffix: '',
+    email: '',
+    password: '',
+    confirm: '',
+  });
+
   useEffect(() => {
     if (status === 'authenticated') {
       router.push('/dashboard');
@@ -50,6 +53,45 @@ export default function LoginPageClient({ initialError }: LoginPageClientProps) 
     );
   }
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, [e.target.id]: e.target.value });
+  };
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (form.password !== form.confirm) {
+      alert('Passwords do not match');
+      return;
+    }
+
+    const res = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form),
+    });
+
+    if (!res.ok) {
+      const { error } = await res.json();
+      alert(error || 'Sign up failed');
+      return;
+    }
+
+    await signIn('credentials', {
+      email: form.email,
+      password: form.password,
+      callbackUrl: '/dashboard',
+    });
+  };
+
+  const handleSignin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await signIn('credentials', {
+      email: form.email,
+      password: form.password,
+      callbackUrl: '/dashboard',
+    });
+  };
+
   const title = mode === 'signIn' ? 'Sign in to your account' : 'Create your account';
 
   return (
@@ -59,12 +101,10 @@ export default function LoginPageClient({ initialError }: LoginPageClientProps) 
           <CardTitle>{title}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Error banner */}
           {initialError && (
             <div className="mb-4 rounded bg-red-100 p-3 text-red-800">{errorMessage}</div>
           )}
 
-          {/* Demo Users Login */}
           <div className="space-y-2">
             <Label htmlFor="demo">Demo User</Label>
             <select
@@ -95,34 +135,51 @@ export default function LoginPageClient({ initialError }: LoginPageClientProps) 
             </Button>
           </div>
 
-          {/* Local form */}
-          <form className="space-y-4">
+          <form className="space-y-4" onSubmit={mode === 'signUp' ? handleSignup : handleSignin}>
             {mode === 'signUp' && (
-              <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
-                <Input id="name" type="text" placeholder="Your name" />
-              </div>
+              <>
+                <Input
+                  id="firstName"
+                  placeholder="First Name"
+                  value={form.firstName}
+                  onChange={handleChange}
+                />
+                <Input
+                  id="middleName"
+                  placeholder="Middle Name"
+                  value={form.middleName}
+                  onChange={handleChange}
+                />
+                <Input
+                  id="lastName"
+                  placeholder="Last Name"
+                  value={form.lastName}
+                  onChange={handleChange}
+                />
+                <Input
+                  id="suffix"
+                  placeholder="Suffix"
+                  value={form.suffix}
+                  onChange={handleChange}
+                />
+              </>
             )}
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="you@example.com" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" />
-            </div>
+            <Input
+              id="email"
+              type="email"
+              placeholder="you@example.com"
+              value={form.email}
+              onChange={handleChange}
+            />
+            <Input id="password" type="password" value={form.password} onChange={handleChange} />
             {mode === 'signUp' && (
-              <div className="space-y-2">
-                <Label htmlFor="confirm">Confirm Password</Label>
-                <Input id="confirm" type="password" />
-              </div>
+              <Input id="confirm" type="password" value={form.confirm} onChange={handleChange} />
             )}
             <Button type="submit" className="w-full">
               {mode === 'signIn' ? 'Sign In' : 'Sign Up'}
             </Button>
           </form>
 
-          {/* OAuth Buttons */}
           <div className="space-y-4">
             <Button
               variant="outline"
@@ -168,7 +225,6 @@ export default function LoginPageClient({ initialError }: LoginPageClientProps) 
             </Button>
           </div>
 
-          {/* Toggle link */}
           <div className="text-center">
             {mode === 'signIn' ? (
               <p className="text-gray-700 dark:text-gray-300">

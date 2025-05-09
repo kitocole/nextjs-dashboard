@@ -1,6 +1,5 @@
 // app/lib/route.ts
 import type { NextAuthOptions } from 'next-auth';
-import type { User as PrismaUser } from '@prisma/client';
 
 import GoogleProvider from 'next-auth/providers/google';
 import GithubProvider from 'next-auth/providers/github';
@@ -44,7 +43,7 @@ export const authOptions: NextAuthOptions = {
           firstName: profile.given_name,
           lastName: profile.family_name,
           emailVerified: profile.email_verified,
-          role: 'user', // Default role or fetch dynamically if needed
+          role: 'User', // Default role or fetch dynamically if needed
           middleName: '', // Default or fetch dynamically
           suffix: '', // Default or fetch dynamically
         };
@@ -62,7 +61,7 @@ export const authOptions: NextAuthOptions = {
           firstName: profile.name ?? '',
           lastName: profile.login,
           emailVerified: null,
-          role: 'user', // Default role or fetch dynamically if needed
+          role: 'User', // Default role or fetch dynamically if needed
           middleName: '', // Default or fetch dynamically
           suffix: '', // Default or fetch dynamically
         };
@@ -74,14 +73,28 @@ export const authOptions: NextAuthOptions = {
         email: { label: 'Email', type: 'email', placeholder: 'you@example.com' },
         password: { label: 'Password', type: 'password' },
       },
-      async authorize(credentials) {
-        if (!credentials) return null;
+      authorize: async (credentials) => {
+        if (!credentials?.email || !credentials?.password) return null;
+
         const user = await db.user.findUnique({
           where: { email: credentials.email },
         });
+
         if (!user?.passwordHash) return null;
+
         const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
-        return isValid ? (user as PrismaUser) : null;
+        if (!isValid) return null;
+
+        return {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          middleName: user.middleName,
+          suffix: user.suffix,
+          role: user.role,
+          emailVerified: user.emailVerified,
+        };
       },
     }),
   ],
@@ -89,14 +102,29 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = user.role; // Add user role to the token
+        console.log('User:', user);
+        token.role = user.role;
+        token.id = user.id;
+        token.email = user.email;
+        token.name = user.name;
+        token.firstName = user.firstName;
+        token.middleName = user.middleName;
+        token.lastName = user.lastName;
+        token.suffix = user.suffix;
       }
       return token;
     },
 
     async session({ session, token }) {
       if (session.user && token.role) {
-        session.user.role = token.role; // Add role to the session
+        session.user.role = token.role;
+        session.user.id = token.id;
+        session.user.email = token.email;
+        session.user.name = token.name;
+        session.user.firstName = token.firstName;
+        session.user.middleName = token.middleName;
+        session.user.lastName = token.lastName;
+        session.user.suffix = token.suffix;
       }
       return session;
     },

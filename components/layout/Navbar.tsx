@@ -3,7 +3,15 @@
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
-import { Menu as MenuIcon, Bell, Settings as SettingsIcon, LogOut, Moon, Sun } from 'lucide-react';
+import {
+  Menu as MenuIcon,
+  Bell,
+  Settings as SettingsIcon,
+  LogOut,
+  Moon,
+  Sun,
+  User as UserIcon,
+} from 'lucide-react';
 import { useSidebarStore } from './SidebarStore';
 import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react';
 import Image from 'next/image';
@@ -90,21 +98,27 @@ export function Navbar() {
             >
               <MenuItems className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none dark:bg-gray-800">
                 <div className="py-1">
+                  {/* Greeting */}
+                  <div className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300">
+                    Hello, {session.user.firstName || 'User'}!
+                  </div>
+                  {/* Profile Link */}
                   <MenuItem>
                     {({ focus }) => (
                       <Link
-                        href="/settings"
-                        className={`block px-4 py-2 text-sm ${
+                        href="/profile"
+                        className={`flex items-center px-4 py-2 text-sm ${
                           focus
                             ? 'bg-gray-100 dark:bg-gray-700'
                             : 'text-gray-700 dark:text-gray-300'
                         }`}
                       >
-                        <SettingsIcon className="mr-2 inline h-4 w-4" />
-                        Settings
+                        <UserIcon className="mr-2 h-4 w-4" />
+                        Profile
                       </Link>
                     )}
                   </MenuItem>
+                  {/* Dark Mode Toggle */}
                   <MenuItem
                     as="div"
                     onClick={(e) => {
@@ -132,17 +146,33 @@ export function Navbar() {
                       </div>
                     )}
                   </MenuItem>
+                  {/* Settings Link */}
                   <MenuItem>
                     {({ focus }) => (
-                      <button
-                        onClick={() => signOut({ callbackUrl: '/' })}
-                        className={`w-full px-4 py-2 text-left text-sm ${
+                      <Link
+                        href="/settings"
+                        className={`flex items-center px-4 py-2 text-sm ${
                           focus
                             ? 'bg-gray-100 dark:bg-gray-700'
                             : 'text-gray-700 dark:text-gray-300'
                         }`}
                       >
-                        <LogOut className="mr-2 inline h-4 w-4" />
+                        <SettingsIcon className="mr-2 h-4 w-4" />
+                        Settings
+                      </Link>
+                    )}
+                  </MenuItem>
+                  <MenuItem>
+                    {({ focus }) => (
+                      <button
+                        onClick={() => signOut({ callbackUrl: '/' })}
+                        className={`flex w-full items-center px-4 py-2 text-left text-sm ${
+                          focus
+                            ? 'bg-gray-100 dark:bg-gray-700'
+                            : 'text-gray-700 dark:text-gray-300'
+                        }`}
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
                         Sign Out
                       </button>
                     )}

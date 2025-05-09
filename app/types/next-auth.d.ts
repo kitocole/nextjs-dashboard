@@ -4,9 +4,18 @@ import { JWT as DefaultJWT } from 'next-auth/jwt';
 
 declare module 'next-auth' {
   interface Session extends DefaultSession {
-    user: DefaultSession['user'] & { role: string };
+    user: DefaultSession['user'] & {
+      id?: string;
+      email?: string | null;
+      firstName?: string;
+      role: string;
+      lastName?: string;
+      middleName?: string | null;
+      suffix?: string | null;
+    };
   }
   interface User extends DefaultUser {
+    id: string;
     role: string;
     firstName: string;
     lastName: string;
@@ -18,6 +27,12 @@ declare module 'next-auth' {
 
 declare module 'next-auth/jwt' {
   interface JWT extends DefaultJWT {
+    id?: string;
+    firstName?: string;
+    middleName?: string | null;
+    lastName?: string;
+    suffix?: string | null;
+    email?: string | null;
     role?: string;
   }
 }

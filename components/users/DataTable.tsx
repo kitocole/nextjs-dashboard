@@ -34,7 +34,6 @@ export function DataTable<T extends RowData>({ data, columns }: DataTableProps<T
   const memoizedData = useMemo(() => data, [data]);
   const memoizedColumns = useMemo(() => columns, [columns]);
 
-  // Table state
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -47,24 +46,36 @@ export function DataTable<T extends RowData>({ data, columns }: DataTableProps<T
     state: { columnFilters, pagination, columnVisibility, columnSizing },
     onColumnFiltersChange: setColumnFilters,
     onPaginationChange: setPagination,
-    onColumnVisibilityChange: setColumnVisibility,
+    onColumnVisibilityChange: (updater) => {
+      setColumnVisibility(updater);
+      setColumnSizing({}); // Optional: reset sizing when visibility changes
+    },
     onColumnSizingChange: (updater) => {
       setColumnSizing((old) => {
         const newSizing = typeof updater === 'function' ? updater(old) : updater;
+
+        const visibleColumns = table.getVisibleLeafColumns();
         const diff = Object.entries(newSizing).find(([id, size]) => {
           const oldSize = old[id] ?? table.getColumn(id)?.getSize() ?? 0;
           return size !== oldSize;
         });
+
         if (!diff) return newSizing;
+
         const [resizedId, newSize] = diff;
         const oldSize = old[resizedId] ?? table.getColumn(resizedId)?.getSize() ?? 0;
         const delta = newSize - oldSize;
-        const leafs = table.getAllLeafColumns();
-        const idx = leafs.findIndex((c) => c.id === resizedId);
-        if (idx === -1 || idx === leafs.length - 1) return newSizing;
-        const nextId = leafs[idx + 1].id;
-        const oldNext = old[nextId] ?? table.getColumn(nextId)?.getSize() ?? 0;
-        const nextSize = Math.max(30, oldNext - delta);
+
+        const resizedColumnIndex = visibleColumns.findIndex((c) => c.id === resizedId);
+        if (resizedColumnIndex === -1 || resizedColumnIndex === visibleColumns.length - 1) {
+          return newSizing;
+        }
+
+        const nextColumn = visibleColumns[resizedColumnIndex + 1];
+        const nextId = nextColumn.id;
+        const oldNextSize = old[nextId] ?? table.getColumn(nextId)?.getSize() ?? 0;
+        const nextSize = Math.max(30, oldNextSize - delta);
+
         return {
           ...old,
           [resizedId]: newSize,
@@ -84,7 +95,6 @@ export function DataTable<T extends RowData>({ data, columns }: DataTableProps<T
 
   return (
     <div className="w-full">
-      {/* Column visibility, export menu, and expand toggle */}
       <div className="mb-4 flex flex-wrap items-center gap-4">
         <span className="font-medium">Columns:</span>
         {table.getAllLeafColumns().map((column) => (
@@ -117,7 +127,7 @@ export function DataTable<T extends RowData>({ data, columns }: DataTableProps<T
                   <MenuItem>
                     {({ focus }) => (
                       <CSVLink
-                        data={memoizedData as unknown as object[]}
+                        data={memoizedData as object[]}
                         filename="export.csv"
                         className={`block px-4 py-2 text-sm ${
                           focus ? 'bg-gray-100 dark:bg-gray-700' : ''
@@ -137,11 +147,10 @@ export function DataTable<T extends RowData>({ data, columns }: DataTableProps<T
         </div>
       </div>
 
-      {/* Table with fixed header + scrollable body */}
       <div className={`overflow-auto ${isExpanded ? 'max-h-screen' : 'max-h-[600px]'}`}>
         <table className="w-full table-fixed border-collapse">
           <colgroup>
-            {table.getAllLeafColumns().map((col) => (
+            {table.getVisibleLeafColumns().map((col) => (
               <col key={col.id} style={{ width: `${col.getSize()}px` }} />
             ))}
           </colgroup>
@@ -177,7 +186,6 @@ export function DataTable<T extends RowData>({ data, columns }: DataTableProps<T
                 ))}
               </tr>
             ))}
-            {/* Filter row */}
             <tr>
               {table.getHeaderGroups()[0].headers.map((header) => (
                 <th key={header.id} className="truncate px-4 py-1">
@@ -208,7 +216,6 @@ export function DataTable<T extends RowData>({ data, columns }: DataTableProps<T
         </table>
       </div>
 
-      {/* Pagination controls */}
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <Button
