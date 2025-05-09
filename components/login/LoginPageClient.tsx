@@ -39,6 +39,8 @@ export default function LoginPageClient({ initialError }: LoginPageClientProps) 
     confirm: '',
   });
 
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+
   useEffect(() => {
     if (status === 'authenticated') {
       router.push('/dashboard');
@@ -59,11 +61,22 @@ export default function LoginPageClient({ initialError }: LoginPageClientProps) 
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (form.password !== form.confirm) {
-      alert('Passwords do not match');
+
+    // Perform validation
+    const errors: Record<string, string> = {};
+    if (!form.firstName) errors.firstName = 'First Name is required';
+    if (!form.lastName) errors.lastName = 'Last Name is required';
+    if (!form.email) errors.email = 'Email is required';
+    if (!form.password) errors.password = 'Password is required';
+    if (form.password !== form.confirm) errors.confirm = 'Passwords do not match';
+
+    // If there are errors, display them and stop submission
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
       return;
     }
 
+    // Proceed with signup logic
     const res = await fetch('/api/auth/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -85,6 +98,19 @@ export default function LoginPageClient({ initialError }: LoginPageClientProps) 
 
   const handleSignin = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Perform validation
+    const errors: Record<string, string> = {};
+    if (!form.email) errors.email = 'Email is required';
+    if (!form.password) errors.password = 'Password is required';
+
+    // If there are errors, display them and stop submission
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+
+    // Proceed with signin logic
     await signIn('credentials', {
       email: form.email,
       password: form.password,
@@ -138,42 +164,90 @@ export default function LoginPageClient({ initialError }: LoginPageClientProps) 
           <form className="space-y-4" onSubmit={mode === 'signUp' ? handleSignup : handleSignin}>
             {mode === 'signUp' && (
               <>
-                <Input
-                  id="firstName"
-                  placeholder="First Name"
-                  value={form.firstName}
-                  onChange={handleChange}
-                />
-                <Input
-                  id="middleName"
-                  placeholder="Middle Name"
-                  value={form.middleName}
-                  onChange={handleChange}
-                />
-                <Input
-                  id="lastName"
-                  placeholder="Last Name"
-                  value={form.lastName}
-                  onChange={handleChange}
-                />
-                <Input
-                  id="suffix"
-                  placeholder="Suffix"
-                  value={form.suffix}
-                  onChange={handleChange}
-                />
+                <div>
+                  <Label htmlFor="firstName">First Name</Label>
+                  <Input
+                    id="firstName"
+                    placeholder="First Name"
+                    value={form.firstName}
+                    onChange={handleChange}
+                  />
+                  {validationErrors.firstName && (
+                    <p className="text-sm text-red-500">{validationErrors.firstName}</p>
+                  )}
+                </div>
+                <div>
+                  <Label htmlFor="middleName">Middle Name</Label>
+                  <Input
+                    id="middleName"
+                    placeholder="Middle Name"
+                    value={form.middleName}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input
+                    id="lastName"
+                    placeholder="Last Name"
+                    value={form.lastName}
+                    onChange={handleChange}
+                  />
+                  {validationErrors.lastName && (
+                    <p className="text-sm text-red-500">{validationErrors.lastName}</p>
+                  )}
+                </div>
+                <div>
+                  <Label htmlFor="suffix">Suffix</Label>
+                  <Input
+                    id="suffix"
+                    placeholder="Suffix"
+                    value={form.suffix}
+                    onChange={handleChange}
+                  />
+                </div>
               </>
             )}
-            <Input
-              id="email"
-              type="email"
-              placeholder="you@example.com"
-              value={form.email}
-              onChange={handleChange}
-            />
-            <Input id="password" type="password" value={form.password} onChange={handleChange} />
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="you@example.com"
+                value={form.email}
+                onChange={handleChange}
+              />
+              {validationErrors.email && (
+                <p className="text-sm text-red-500">{validationErrors.email}</p>
+              )}
+            </div>
+            <div>
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Enter your password"
+                value={form.password}
+                onChange={handleChange}
+              />
+              {validationErrors.password && (
+                <p className="text-sm text-red-500">{validationErrors.password}</p>
+              )}
+            </div>
             {mode === 'signUp' && (
-              <Input id="confirm" type="password" value={form.confirm} onChange={handleChange} />
+              <div>
+                <Label htmlFor="confirm">Confirm Password</Label>
+                <Input
+                  id="confirm"
+                  type="password"
+                  placeholder="Confirm your password"
+                  value={form.confirm}
+                  onChange={handleChange}
+                />
+                {validationErrors.confirm && (
+                  <p className="text-sm text-red-500">{validationErrors.confirm}</p>
+                )}
+              </div>
             )}
             <Button type="submit" className="w-full">
               {mode === 'signIn' ? 'Sign In' : 'Sign Up'}

@@ -15,13 +15,15 @@ import {
 import { useSidebarStore } from './SidebarStore';
 import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react';
 import Image from 'next/image';
-import { Fragment } from 'react';
+import { Fragment, useEffect, useState, useRef } from 'react';
 import { useTheme } from 'next-themes';
 import { ThemeToggle } from '../theme/ThemeToggle';
+import { INotification } from '../notifications/types';
+import { useNotificationStore } from '@/components/notifications/notificationsStore';
 
 export function Navbar() {
   const pathname = usePathname();
-  const showToggle = ['/dashboard', '/notifications', '/profile', '/users'].some((p) =>
+  const showToggle = ['/dashboard', '/notifications', '/profile', '/users', '/settings'].some((p) =>
     pathname.startsWith(p),
   );
   const toggleDrawer = useSidebarStore((s) => s.toggleDrawer);
@@ -35,6 +37,36 @@ export function Navbar() {
   const current = theme === 'system' ? systemTheme : theme;
   const isDark = current === 'dark';
   const toggleTheme = () => setTheme(isDark ? 'light' : 'dark');
+
+  const { notifications, unreadCount, setNotifications, markAsRead, markAllAsRead } =
+    useNotificationStore();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      const res = await fetch('/api/notifications');
+      const data: INotification[] = await res.json();
+      setNotifications(data);
+    };
+
+    fetchNotifications();
+  }, [setNotifications]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const recentNotifications = notifications.slice(0, 5); // Show the most recent 5 notifications
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
@@ -65,12 +97,73 @@ export function Navbar() {
           </Link>
         )}
         {isAuthenticated && (
-          <Link
-            href="/notifications"
-            className="relative rounded p-2 text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-          >
-            <Bell className="h-6 w-6" />
-          </Link>
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="relative rounded p-2 text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+            >
+              <Bell className="h-6 w-6" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+
+            {isDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-64 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none dark:bg-gray-800">
+                {/* Scrollable Notifications */}
+                <div className="max-h-80 overflow-y-auto py-2">
+                  {recentNotifications.length > 0 ? (
+                    recentNotifications.map((notif) => (
+                      <div
+                        key={notif.id}
+                        onClick={() => markAsRead(notif.id)}
+                        className={`cursor-pointer px-4 py-2 text-sm ${
+                          notif.read
+                            ? 'bg-gray-100 dark:bg-gray-700'
+                            : 'bg-blue-50 dark:bg-blue-900'
+                        } hover:bg-gray-200 dark:hover:bg-gray-600`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="font-medium text-gray-900 dark:text-gray-100">
+                            {notif.message}
+                          </div>
+                          {!notif.read && (
+                            <span className="ml-2 h-2 w-2 rounded-full bg-blue-500"></span>
+                          )}
+                        </div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          {notif.createdAt}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                      No new notifications.
+                    </div>
+                  )}
+                </div>
+
+                {/* Fixed Footer */}
+                <div className="border-t border-gray-200 dark:border-gray-700">
+                  <button
+                    onClick={markAllAsRead}
+                    className="block w-full px-4 py-2 text-center text-sm text-blue-600 hover:underline dark:text-blue-400"
+                  >
+                    Mark All as Read
+                  </button>
+                  <Link
+                    href="/notifications"
+                    onClick={() => setIsDropdownOpen(false)}
+                    className="block px-4 py-2 text-center text-sm text-blue-600 hover:underline dark:text-blue-400"
+                  >
+                    View All
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
         )}
 
         {status === 'loading' ? (

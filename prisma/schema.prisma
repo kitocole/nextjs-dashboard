@@ -8,24 +8,25 @@ generator client {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  email         String?   @unique
-  emailVerified DateTime?            // <-- changed to DateTime?
-  image         String?
-  firstName     String
-  middleName    String?
-  lastName      String
-  suffix        String?
-  role          String
-  passwordHash  String
-  dashboardCards  Json?    // ← store ["revenue","users",…]
-  dashboardCharts Json?    // ← store ["line","pie","bar"]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now())  @updatedAt
+  id              String         @id @default(cuid())
+  email           String?        @unique
+  emailVerified   DateTime?
+  image           String?
+  firstName       String
+  middleName      String?
+  lastName        String
+  suffix          String?
+  role            Role           @default(USER)
+  passwordHash    String
+  dashboardCards  Json? // ← store ["revenue","users",…]
+  dashboardCharts Json? // ← store ["line","pie","bar"]
+  notifications   Notification[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @default(now()) @updatedAt
 
   // NextAuth relations:
-  accounts      Account[] 
-  sessions      Session[]
+  accounts Account[]
+  sessions Session[]
 }
 
 model Account {
@@ -34,15 +35,15 @@ model Account {
   type               String
   provider           String
   providerAccountId  String
-  refresh_token      String?   @map("refresh_token")
-  access_token       String?   @map("access_token")
-  expires_at         Int?      @map("expires_at")
-  token_type         String?   @map("token_type")
+  refresh_token      String? @map("refresh_token")
+  access_token       String? @map("access_token")
+  expires_at         Int?    @map("expires_at")
+  token_type         String? @map("token_type")
   scope              String?
-  id_token           String?   @map("id_token")
+  id_token           String? @map("id_token")
   session_state      String?
-  oauth_token_secret String?   @map("oauth_token_secret")
-  oauth_token        String?   @map("oauth_token")
+  oauth_token_secret String? @map("oauth_token_secret")
+  oauth_token        String? @map("oauth_token")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -50,7 +51,7 @@ model Account {
 }
 
 model Session {
-  id           String   @id @default(cuid())
+  id           String   @id
   sessionToken String   @unique
   userId       String
   expires      DateTime
@@ -64,4 +65,20 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  message   String?
+  read      Boolean  @default(false)
+  User      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+enum Role {
+  USER
+  EDITOR
+  ADMIN
 }

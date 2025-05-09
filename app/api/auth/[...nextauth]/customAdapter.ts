@@ -27,7 +27,7 @@ export function CustomAdapter() {
           image: data.image,
           // convert boolean → Date or leave null
           emailVerified: data.emailVerified ? new Date() : null,
-          role: 'User',
+          role: data.role || 'User',
           passwordHash: '', // leave blank for OAuth users
         },
       });

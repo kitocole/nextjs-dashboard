@@ -1,44 +1,18 @@
 // app/(protected)/notifications/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useNotificationStore } from '@/components/notifications/notificationsStore';
 
-interface Notification {
-  id: number;
-  message: string;
-  time: string;
-}
-
 export default function NotificationsPage() {
-  const { setUnreadCount } = useNotificationStore();
-  const [loading, setLoading] = useState(true);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const res = await fetch('/api/notifications');
-        const data = await res.json();
-        setNotifications(data);
-        setUnreadCount(0);
-      } catch (err) {
-        console.error('Failed to fetch notifications', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchNotifications();
-  }, [setUnreadCount]);
+  const { notifications, markAsRead, markAllAsRead } = useNotificationStore();
 
   return (
     <div className="mx-auto max-w-2xl p-6">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Notifications</h1>
-        {!loading && notifications.length > 0 && (
+        {notifications.length > 0 && (
           <button
-            onClick={() => setNotifications([])}
+            onClick={markAllAsRead}
             className="text-blue-500 hover:underline dark:text-blue-400"
           >
             Mark all as read
@@ -46,26 +20,28 @@ export default function NotificationsPage() {
         )}
       </div>
 
-      {loading ? (
-        <div className="space-y-4">
-          {[1, 2, 3].map((key) => (
-            <div key={key} className="h-16 animate-pulse rounded-lg bg-gray-100 dark:bg-gray-800" />
-          ))}
-        </div>
-      ) : notifications.length > 0 ? (
-        <div className="animate-fade-in flex flex-col gap-4">
+      {notifications.length > 0 ? (
+        <div className="flex flex-col gap-4">
           {notifications.map((notif) => (
             <div
               key={notif.id}
-              className="rounded-lg border bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900"
+              onClick={() => markAsRead(notif.id)}
+              className={`cursor-pointer rounded-lg border p-4 shadow-sm ${
+                notif.read
+                  ? 'bg-white dark:border-gray-700 dark:bg-gray-900'
+                  : 'bg-blue-50 dark:border-blue-900 dark:bg-blue-900'
+              } hover:bg-gray-100 dark:hover:bg-gray-800`}
             >
-              <div className="font-medium text-gray-900 dark:text-gray-100">{notif.message}</div>
-              <div className="text-sm text-gray-500 dark:text-gray-400">{notif.time}</div>
+              <div className="flex items-center justify-between">
+                <div className="font-medium text-gray-900 dark:text-gray-100">{notif.message}</div>
+                {!notif.read && <span className="ml-2 h-2 w-2 rounded-full bg-blue-500"></span>}
+              </div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">{notif.createdAt}</div>
             </div>
           ))}
         </div>
       ) : (
-        <div className="animate-fade-in flex flex-col items-center justify-center py-20">
+        <div className="flex flex-col items-center justify-center py-20">
           <div className="mb-2 text-2xl font-bold text-gray-700 dark:text-gray-300">
             🎉 You&apos;re all caught up!
           </div>

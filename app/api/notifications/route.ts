@@ -5,22 +5,32 @@ export async function GET() {
     {
       id: 1,
       message: 'New user signed up!',
-      time: '2 minutes ago',
+      createdAt: '2 minutes ago',
+      read: false,
     },
     {
       id: 2,
       message: 'Server restarted successfully.',
-      time: '10 minutes ago',
+      createdAt: '10 minutes ago',
+      read: false,
     },
     {
       id: 3,
       message: 'New payment received.',
-      time: '30 minutes ago',
+      createdAt: '30 minutes ago',
+      read: false,
     },
     {
       id: 4,
       message: 'Database backup completed.',
-      time: '1 hour ago',
+      createdAt: '1 hour ago',
+      read: false,
+    },
+    {
+      id: 5,
+      message: 'System update available.',
+      createdAt: '2 hours ago',
+      read: false,
     },
   ]);
 }
