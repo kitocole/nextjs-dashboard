@@ -67,7 +67,7 @@ async function main() {
       lastName,
       suffix: randomSuffix(),
       email,
-      role: faker.helpers.arrayElement(['Admin', 'Editor', 'Viewer']),
+      role: faker.helpers.arrayElement(['User']),
       passwordHash: hashed,
     });
   }

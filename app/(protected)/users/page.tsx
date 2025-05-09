@@ -6,13 +6,19 @@ import { useForm } from 'react-hook-form';
 import { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/users/DataTable';
 import UserModal, { User } from '@/components/users/UserModal';
+import { toast } from 'sonner';
+import { useSession } from 'next-auth/react';
 
 export default function UsersPage() {
+  const { data: session, status } = useSession();
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const { register, handleSubmit, reset, formState } = useForm<User>();
+
+  // Fetch the current user's role from the session
+  const currentUserRole = session?.user?.role;
 
   // 1️⃣ Load users
   useEffect(() => {
@@ -33,43 +39,59 @@ export default function UsersPage() {
     [reset],
   );
 
-  // 3️⃣ Save edits
+  // 3️⃣ Save edits (only if admin)
   const onSave = async (data: User) => {
-    if (!window.confirm('Save changes to this user?')) return;
+    if (currentUserRole !== 'Admin') {
+      toast.error('You do not have permission to edit users.');
+      return;
+    }
+
     const res = await fetch(`/api/users/${data.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
+
     if (!res.ok) {
-      alert('Update failed');
+      toast.error('Failed to update user.');
       return;
     }
+
     const updated: User = await res.json();
     setUsers((prev) => prev.map((u) => (u.id === updated.id ? updated : u)));
     setIsModalOpen(false);
     setSelectedUser(null);
+    toast.success('User updated successfully.');
   };
 
-  // 4️⃣ Delete user
+  // 4️⃣ Delete user (only if admin)
   const onDelete = async () => {
-    if (!selectedUser) return;
-    if (
-      !window.confirm(
-        `Delete user ${selectedUser.firstName} ${selectedUser.lastName}? This cannot be undone.`,
-      )
-    )
+    if (currentUserRole !== 'Admin') {
+      toast.error('You do not have permission to delete users.');
       return;
+    }
+
+    if (!selectedUser) return;
+
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete ${selectedUser.firstName} ${selectedUser.lastName}? This action cannot be undone.`,
+    );
+
+    if (!confirmDelete) return;
+
     const res = await fetch(`/api/users/${selectedUser.id}`, {
       method: 'DELETE',
     });
+
     if (!res.ok) {
-      alert('Delete failed');
+      toast.error('Failed to delete user.');
       return;
     }
+
     setUsers((prev) => prev.filter((u) => u.id !== selectedUser.id));
     setIsModalOpen(false);
     setSelectedUser(null);
+    toast.success('User deleted successfully.');
   };
 
   // 5️⃣ Define columns (including ID)
@@ -126,6 +148,14 @@ export default function UsersPage() {
     ],
     [openModal],
   );
+
+  if (status === 'loading') {
+    return <p>Loading...</p>;
+  }
+
+  if (!session) {
+    return <p>You must be logged in to view this page.</p>;
+  }
 
   return (
     <div className="p-6">
