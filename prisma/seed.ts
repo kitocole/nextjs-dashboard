@@ -1,5 +1,5 @@
 // prisma/seed.ts
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Role } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 // import { faker } from '@faker-js/faker';
 
@@ -17,18 +17,24 @@ async function main() {
     {
       firstName: 'Admin',
       lastName: 'Admin',
-      role: 'Admin',
+      role: 'ADMIN',
       email: 'admin@example.com',
       password: 'changeme',
     },
     {
       firstName: 'Admin2',
       lastName: 'Admin2',
-      role: 'Admin',
+      role: 'ADMIN',
       email: 'admin2@example.com',
       password: 'changeme',
     },
-    { firstName: 'User', lastName: 'User', email: 'editor@example.com', password: 'changeme' },
+    {
+      firstName: 'User',
+      lastName: 'User',
+      role: 'USER',
+      email: 'editor@example.com',
+      password: 'changeme',
+    },
   ];
   await db.user.deleteMany({ where: { email: { in: demos.map((d) => d.email) } } });
   console.log('Cleared demo users.');
@@ -44,7 +50,7 @@ async function main() {
         lastName: u.lastName,
         suffix: null,
         email: u.email,
-        role: u.role || 'User',
+        role: (u.role as Role) || 'USER',
         passwordHash: hash,
       },
     });

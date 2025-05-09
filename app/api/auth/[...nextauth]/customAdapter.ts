@@ -1,6 +1,7 @@
 // app/lib/customAdapter.ts
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { db } from '@/lib/prisma';
+import { Role } from '@prisma/client'; // Import the Role enum
 
 export function CustomAdapter() {
   const adapter = PrismaAdapter(db);
@@ -27,7 +28,7 @@ export function CustomAdapter() {
           image: data.image,
           // convert boolean → Date or leave null
           emailVerified: data.emailVerified ? new Date() : null,
-          role: data.role || 'User',
+          role: (data.role as Role) || Role.USER, // Cast to Role enum
           passwordHash: '', // leave blank for OAuth users
         },
       });
