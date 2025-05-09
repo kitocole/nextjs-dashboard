@@ -1,42 +1,50 @@
-# SaaS Dashboard (Next.js + Tailwind + Zustand + Prisma)
+# **SaaS Dashboard Kit**
 
-A customizable, responsive dashboard interface built with modern tools:
+A modern, customizable, and responsive dashboard built with **Next.js**, **Tailwind CSS**, and **Prisma**. This project is designed to streamline user management, data visualization, and role-based access control for SaaS applications.
 
-- 🌗 **Dark/Light Theme** with persistence via `next-themes`
-- 📊 **Charts & Stats** animated with `Recharts` and `CountUp.js`
-- 🔀 **Drag-and-Drop Layout** using `dnd-kit`
-- 🧠 **Global State** managed by `Zustand` (persisted to `localStorage`)
-- 🔐 **Authentication** with `NextAuth.js` (GitHub & Google)
-- ⚙️ **Dashboard Settings** and customization panel
-- 🗄️ **PostgreSQL Backend** via Prisma ORM
-- 🐳 **Docker Compose** for local database setup
+---
 
-Inspired by tools like Linear and Vercel Admin.
+## 🌟 **Features**
 
-## 🚀 Live Demo
+- 🌗 **Dark/Light Theme**: Seamless theme switching with `next-themes`.
+- 📊 **Interactive Charts**: Data visualizations powered by `Recharts` and `CountUp.js`.
+- 🔀 **Drag-and-Drop Layouts**: Intuitive dashboard customization using `dnd-kit`.
+- 🔐 **Secure Authentication**: OAuth and email login with `NextAuth.js`.
+- 🧑‍💼 **Role-Based Access Control**: Admin and user permissions for secure operations.
+- 🗄️ **PostgreSQL Backend**: Scalable database integration via Prisma ORM.
+- ⚙️ **Customizable Settings**: Personalize dashboard layouts and preferences.
+- 🐳 **Docker Support**: Simplified local development with Docker Compose.
 
-[https://nextjs-dashboard-kitocoles-projects.vercel.app](https://nextjs-dashboard-kitocoles-projects.vercel.app)
+---
 
-## 🛠️ Tech Stack
+## 🚀 **Live Demo**
 
-- **Frontend**: Next.js 14 (App Router), React, Tailwind CSS
-- **State**: Zustand
+[**View the Live Demo**](https://nextjs-dashboard-kitocoles-projects.vercel.app)
+
+---
+
+## 🛠️ **Tech Stack**
+
+- **Frontend**: Next.js (App Router), React, Tailwind CSS
+- **State Management**: Zustand
 - **Data Visualization**: Recharts, CountUp.js
 - **Drag & Drop**: dnd-kit
-- **Auth**: NextAuth.js
+- **Authentication**: NextAuth.js
 - **Backend**: Prisma (PostgreSQL)
 - **DevOps**: Docker Compose
 
-## 📦 Installation & Setup
+---
 
-1. **Clone the repo**
+## 📦 **Installation & Setup**
+
+1. **Clone the Repository**
 
    ```bash
    git clone https://github.com/kitocole/nextjs-dashboard.git
    cd nextjs-dashboard
    ```
 
-2. **Install dependencies**
+2. **Install Dependencies**
 
    ```bash
    npm install
@@ -44,12 +52,11 @@ Inspired by tools like Linear and Vercel Admin.
    pnpm install
    ```
 
-3. **Configure environment**
-
-   Create a `.env` file in the project root:
+3. **Configure Environment Variables**  
+   Create a `.env` file in the root directory:
 
    ```dotenv
-   # PostgreSQL (Docker Compose + Prisma)
+   # PostgreSQL
    POSTGRES_USER=postgres
    POSTGRES_PASSWORD=your_db_password
    POSTGRES_DB=dashboard
@@ -64,33 +71,30 @@ Inspired by tools like Linear and Vercel Admin.
    GOOGLE_CLIENT_SECRET=<your-google-client-secret>
    ```
 
-4. **Start services & database**
+4. **Start Services & Database**
 
    ```bash
-   # Launch PostgreSQL
    docker-compose up -d
-
-   # Run Prisma migrations & seed
    npx prisma migrate dev --name init
    npx prisma db seed
    ```
 
-5. **Run the development server**
-
+5. **Run the Development Server**
    ```bash
    npm run dev
    # or
    pnpm dev
    ```
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-   Open [http://localhost:3000](http://localhost:3000) to view your dashboard.
+---
 
-## 🗂️ Project Structure
+## 🗂️ **Project Structure**
 
 ```
 ├── app/               # Next.js routes & layouts
 ├── components/        # Reusable React components
-├── lib/               # Utils (Prisma client, helpers)
+├── lib/               # Utilities (Prisma client, helpers)
 ├── prisma/            # Schema, migrations, seed scripts
 ├── public/            # Static assets
 ├── styles/            # Tailwind & global styles
@@ -99,15 +103,28 @@ Inspired by tools like Linear and Vercel Admin.
 └── tailwind.config.js
 ```
 
-## 📈 Roadmap
+---
 
-- [ ] Persist widget layouts per user on the server
-- [ ] Role-based access control & permissions
-- [ ] Profile & settings pages
+## 📈 **Roadmap**
+
+- [x] Role-based access control & permissions
+- [x] Profile & settings pages
+- [x] Interactive charts & visualizations
+- [x] Persist widget layouts per user on the server
 - [ ] Add more chart types & visualizations
 - [ ] Unit & integration tests
 - [ ] CI/CD pipeline setup
 
-## 📄 License
+---
 
-MIT © 2025 Kaeny Ito-Cole
+## 🤝 **Contributing**
+
+Contributions are welcome! Feel free to open issues or submit pull requests to improve the project.
+
+---
+
+## 📄 **License**
+
+This project is licensed under the [MIT License](LICENSE).
+
+---
