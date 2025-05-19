@@ -3,7 +3,7 @@ import './globals.css';
 import { Navbar } from '@/components/layout/Navbar';
 import { Sidebar } from '@/components/layout/Sidebar'; // Import Sidebar
 import { Providers } from './providers';
-
+import { Analytics } from '@vercel/analytics/next';
 export const metadata = {
   title: 'Sandbox App',
   description: 'Kaenys Sandbox App',
@@ -18,6 +18,7 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
+      <Analytics />
       <body className="flex h-full flex-col" suppressHydrationWarning>
         <Providers>
           <Navbar />
