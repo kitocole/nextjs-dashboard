@@ -40,6 +40,7 @@ export default function LoginPageClient({ initialError }: LoginPageClientProps) 
   });
 
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false); // Add loading state
 
   useEffect(() => {
     if (status === 'authenticated') {
@@ -61,6 +62,7 @@ export default function LoginPageClient({ initialError }: LoginPageClientProps) 
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true); // Start loading
 
     // Perform validation
     const errors: Record<string, string> = {};
@@ -73,6 +75,7 @@ export default function LoginPageClient({ initialError }: LoginPageClientProps) 
     // If there are errors, display them and stop submission
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
+      setLoading(false); // Stop loading on validation error
       return;
     }
 
@@ -86,6 +89,7 @@ export default function LoginPageClient({ initialError }: LoginPageClientProps) 
     if (!res.ok) {
       const { error } = await res.json();
       alert(error || 'Sign up failed');
+      setLoading(false); // Stop loading on error
       return;
     }
 
@@ -98,6 +102,7 @@ export default function LoginPageClient({ initialError }: LoginPageClientProps) 
 
   const handleSignin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
 
     // Perform validation
     const errors: Record<string, string> = {};
@@ -107,6 +112,7 @@ export default function LoginPageClient({ initialError }: LoginPageClientProps) 
     // If there are errors, display them and stop submission
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
+      setLoading(false);
       return;
     }
 
@@ -148,16 +154,23 @@ export default function LoginPageClient({ initialError }: LoginPageClientProps) 
             <Button
               variant="outline"
               className="w-full"
-              onClick={() =>
-                demo &&
-                signIn('credentials', {
-                  email: demo.email,
-                  password: demo.password,
-                  callbackUrl: '/dashboard',
-                })
-              }
+              disabled={!demo || loading}
+              onClick={() => {
+                if (demo) {
+                  setLoading(true);
+                  signIn('credentials', {
+                    email: demo.email,
+                    password: demo.password,
+                    callbackUrl: '/dashboard',
+                  });
+                }
+              }}
             >
-              {demo ? `Login as ${demo.name}` : 'Choose a demo account'}
+              {loading && demo
+                ? `Logging in…`
+                : demo
+                  ? `Login as ${demo.name}`
+                  : 'Choose a demo account'}
             </Button>
           </div>
 
@@ -249,8 +262,14 @@ export default function LoginPageClient({ initialError }: LoginPageClientProps) 
                 )}
               </div>
             )}
-            <Button type="submit" className="w-full">
-              {mode === 'signIn' ? 'Sign In' : 'Sign Up'}
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading
+                ? mode === 'signIn'
+                  ? 'Signing In…'
+                  : 'Signing Up…'
+                : mode === 'signIn'
+                  ? 'Sign In'
+                  : 'Sign Up'}
             </Button>
           </form>
 
@@ -258,7 +277,11 @@ export default function LoginPageClient({ initialError }: LoginPageClientProps) 
             <Button
               variant="outline"
               className="flex w-full items-center justify-center gap-2 bg-white dark:bg-gray-700"
-              onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+              disabled={loading}
+              onClick={() => {
+                setLoading(true);
+                signIn('google', { callbackUrl: '/dashboard' });
+              }}
             >
               <Image
                 src="/google/web_light_rd_na.svg"
@@ -274,12 +297,22 @@ export default function LoginPageClient({ initialError }: LoginPageClientProps) 
                 height={24}
                 className="hidden dark:block"
               />
-              {mode === 'signIn' ? 'Sign in with Google' : 'Sign up with Google'}
+              {loading
+                ? mode === 'signIn'
+                  ? 'Signing in…'
+                  : 'Signing up…'
+                : mode === 'signIn'
+                  ? 'Sign in with Google'
+                  : 'Sign up with Google'}
             </Button>
             <Button
               variant="outline"
               className="flex w-full items-center justify-center gap-2 bg-white dark:bg-gray-700"
-              onClick={() => signIn('github', { callbackUrl: '/dashboard' })}
+              disabled={loading}
+              onClick={() => {
+                setLoading(true);
+                signIn('github', { callbackUrl: '/dashboard' });
+              }}
             >
               <Image
                 src="/github/github-mark.svg"
@@ -295,7 +328,13 @@ export default function LoginPageClient({ initialError }: LoginPageClientProps) 
                 height={24}
                 className="hidden dark:block"
               />
-              {mode === 'signIn' ? 'Sign in with GitHub' : 'Sign up with GitHub'}
+              {loading
+                ? mode === 'signIn'
+                  ? 'Signing in…'
+                  : 'Signing up…'
+                : mode === 'signIn'
+                  ? 'Sign in with GitHub'
+                  : 'Sign up with GitHub'}
             </Button>
           </div>
 
