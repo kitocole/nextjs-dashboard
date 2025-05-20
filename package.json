@@ -11,8 +11,7 @@
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
     "format": "prettier --check .",
-    "format:fix": "prettier --write .",
-    "postinstall": "prisma generate --no-engine"
+    "format:fix": "prettier --write ."
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
