@@ -21,8 +21,8 @@ const data = [
 
 export function Chart() {
   return (
-    <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-sm border dark:border-gray-700">
-      <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
+    <div className="rounded-lg border bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+      <h2 className="mb-4 text-lg font-semibold text-gray-800 dark:text-gray-100">
         Revenue Over Time
       </h2>
       <ResponsiveContainer width="100%" height={300}>
