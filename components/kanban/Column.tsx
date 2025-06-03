@@ -13,7 +13,6 @@ export default function Column({
   column,
   activeCardId,
   overCardId,
-  isColumnDragging,
   overColumnId,
 }: {
   column: ColumnType;
@@ -22,7 +21,7 @@ export default function Column({
   isColumnDragging: boolean;
   overColumnId: string | null;
 }) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: column.id,
   });
 
@@ -34,12 +33,10 @@ export default function Column({
 
   const sortedCards = [...column.cards].sort((a, b) => a.order - b.order);
 
-  const style = isColumnDragging
-    ? {
-        transform: CSS.Transform.toString(transform),
-        transition,
-      }
-    : {};
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
 
   const handleTitleBlur = () => {
     if (title !== column.title) {
@@ -66,9 +63,9 @@ export default function Column({
     <div
       ref={setNodeRef}
       style={style}
-      className={`h-[50vh] w-[380px] overflow-y-auto rounded-md border bg-white shadow-sm transition-all duration-200 ease-in-out dark:bg-neutral-900 ${
+      className={`h-[50vh] w-[380px] rounded-md border bg-white shadow-sm transition-transform duration-200 ease-in-out dark:bg-neutral-900 ${
         overColumnId === column.id && !activeCardId ? 'ring-primary ring-2' : ''
-      }`}
+      } ${isDragging ? '' : ''}`}
     >
       <div className="flex items-center justify-between gap-2 border-b p-2">
         <span {...attributes} {...listeners} className="text-muted-foreground cursor-grab">

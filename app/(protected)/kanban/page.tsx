@@ -1,4 +1,3 @@
-// File: app/(protected)/kanban/page.tsx
 'use client';
 
 import {
@@ -34,9 +33,8 @@ import {
 import { Plus } from 'lucide-react';
 import Column from '@/components/kanban/Column';
 import Card from '@/components/kanban/Card';
-import { ColumnType, CardType } from '@/types/kanban';
+import { ColumnType, CardType, BoardType } from '@/types/kanban';
 import { useSession } from 'next-auth/react';
-import { BoardType } from '@/types/kanban';
 
 export default function KanbanBoardPage() {
   const { data: boards } = useKanbanBoards();
@@ -45,18 +43,21 @@ export default function KanbanBoardPage() {
   const createBoard = useCreateBoard();
   const updateCard = useUpdateCard();
   const { selectedBoardId, setSelectedBoardId } = useKanbanStore();
-  const [newBoardTitle, setNewBoardTitle] = useState<string>('');
-  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [newBoardTitle, setNewBoardTitle] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   const [activeCard, setActiveCard] = useState<CardType | null>(null);
+  const [activeColumn, setActiveColumn] = useState<ColumnType | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
+
   const { data: session } = useSession();
   const ownerId = session?.user?.id;
 
   const sensors = useSensors(useSensor(PointerSensor));
 
   const board: BoardType | undefined = useMemo(
-    () => boards?.find((b: BoardType) => b.id === selectedBoardId) ?? boards?.[0],
+    () => boards?.find((b) => b.id === selectedBoardId) ?? boards?.[0],
     [boards, selectedBoardId],
   );
 
@@ -66,12 +67,12 @@ export default function KanbanBoardPage() {
 
   const columns: ColumnType[] = board?.columns.sort((a, b) => a.order - b.order) || [];
 
-  const handleAddColumn = (): void => {
+  const handleAddColumn = () => {
     if (!board) return;
     createColumn.mutate({ title: 'New Column', order: columns.length, boardId: board.id });
   };
 
-  const handleCreateBoard = (): void => {
+  const handleCreateBoard = () => {
     if (!newBoardTitle.trim() || !ownerId) return;
     createBoard.mutate(
       { title: newBoardTitle.trim(), ownerId },
@@ -90,8 +91,11 @@ export default function KanbanBoardPage() {
     setActiveId(active.id as string);
 
     const allCards = columns.flatMap((col) => col.cards);
-    const found = allCards.find((c) => c.id === active.id);
-    if (found) setActiveCard(found);
+    const foundCard = allCards.find((c) => c.id === active.id);
+    const foundColumn = columns.find((col) => col.id === active.id);
+
+    if (foundCard) setActiveCard(foundCard);
+    if (foundColumn) setActiveColumn(foundColumn);
   };
 
   const handleDragOver = (event: DragOverEvent): void => {
@@ -101,6 +105,7 @@ export default function KanbanBoardPage() {
   const handleDragEnd = (event: DragEndEvent): void => {
     const { active, over } = event;
     setActiveCard(null);
+    setActiveColumn(null);
     setOverId(null);
     setActiveId(null);
 
@@ -112,14 +117,12 @@ export default function KanbanBoardPage() {
     if (isCardDrag) {
       const activeCard = allCards.find((c) => c.id === active.id);
       const overCard = allCards.find((c) => c.id === over.id);
-
       if (!activeCard) return;
 
       const sourceColumn = columns.find((col) => col.id === activeCard.columnId);
       const targetColumn = overCard
         ? columns.find((col) => col.cards.some((c) => c.id === overCard.id))
         : columns.find((col) => col.id === over.id);
-
       if (!sourceColumn || !targetColumn) return;
 
       const sourceIndex = sourceColumn.cards.findIndex((c) => c.id === active.id);
