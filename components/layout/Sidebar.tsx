@@ -27,6 +27,7 @@ export function Sidebar() {
   const links = isLoggedIn
     ? [
         { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+        { href: '/kanban', icon: LayoutDashboard, label: 'Kanban' },
         { href: '/profile', icon: UserIcon, label: 'Profile' },
         { href: '/users', icon: UsersIcon, label: 'Users' },
         { href: '/settings', icon: SettingsIcon, label: 'Settings' },
