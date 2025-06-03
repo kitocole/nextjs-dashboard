@@ -6,6 +6,7 @@ import {
   useCreateColumn,
   useUpdateColumn,
   useCreateBoard,
+  useUpdateCard,
 } from '@/hooks/useKanbanBoard';
 import { useEffect, useMemo, useState } from 'react';
 import { useKanbanStore } from '@/stores/kanbanStore';
@@ -14,10 +15,13 @@ import {
   DndContext,
   rectIntersection,
   DragEndEvent,
+  DragStartEvent,
   PointerSensor,
   useSensor,
   useSensors,
-  MeasuringStrategy,
+  DragOverlay,
+  Over,
+  DragOverEvent,
 } from '@dnd-kit/core';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,18 +34,21 @@ import {
 } from '@/components/ui/dialog';
 import { Plus } from 'lucide-react';
 import Column from '@/components/kanban/Column';
-import { ColumnType } from '@/types/kanban';
+import Card from '@/components/kanban/Card';
+import { ColumnType, CardType } from '@/types/kanban';
 import { useSession } from 'next-auth/react';
-import { restrictToHorizontalAxis } from '@dnd-kit/modifiers';
 
 export default function KanbanBoardPage() {
   const { data: boards, isLoading } = useKanbanBoards();
   const createColumn = useCreateColumn();
   const updateColumn = useUpdateColumn();
   const createBoard = useCreateBoard();
+  const updateCard = useUpdateCard();
   const { selectedBoardId, setSelectedBoardId } = useKanbanStore();
   const [newBoardTitle, setNewBoardTitle] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [activeCard, setActiveCard] = useState<CardType | null>(null);
+  const [overId, setOverId] = useState<string | null>(null);
   const { data: session } = useSession();
   const ownerId = session?.user?.id;
 
@@ -78,41 +85,86 @@ export default function KanbanBoardPage() {
     );
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!active || !over || active.id === over.id || !board) return;
-
-    const oldIndex = columns.findIndex((c: ColumnType) => c.id === active.id);
-    const newIndex = columns.findIndex((c: ColumnType) => c.id === over.id);
-    const newOrder: ColumnType[] = arrayMove(columns, oldIndex, newIndex);
-
-    // Optimistically update column order client-side
-    newOrder.forEach((col, i) => {
-      col.order = i;
-    });
-    board.columns = newOrder;
-
-    // Sync changes to backend
-    newOrder.forEach((col) => {
-      updateColumn.mutate({ columnId: col.id, title: col.title, order: col.order });
-    });
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+    const allCards = columns.flatMap((col) => col.cards);
+    const found = allCards.find((c) => c.id === active.id);
+    if (found) setActiveCard(found);
   };
 
-  if (!isLoading && (!boards || boards.length === 0)) {
-    return (
-      <div className="mx-auto max-w-md p-4">
-        <h1 className="mb-4 text-2xl font-semibold">Create a Kanban Board</h1>
-        <div className="flex gap-2">
-          <Input
-            placeholder="Board title"
-            value={newBoardTitle}
-            onChange={(e) => setNewBoardTitle(e.target.value)}
-          />
-          <Button onClick={handleCreateBoard}>Create</Button>
-        </div>
-      </div>
-    );
-  }
+  const handleDragOver = (event: DragOverEvent) => {
+    setOverId(event.over?.id ?? null);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveCard(null);
+    setOverId(null);
+    if (!active || !over || active.id === over.id || !board) return;
+
+    const allCards: CardType[] = columns.flatMap((col) => col.cards);
+    const isCardDrag = allCards.some((c) => c.id === active.id);
+
+    if (isCardDrag) {
+      const activeCard = allCards.find((c) => c.id === active.id);
+      const overCard = allCards.find((c) => c.id === over.id);
+
+      if (!activeCard) return;
+
+      const sourceColumn = columns.find((col) => col.id === activeCard.columnId);
+      const targetColumn = overCard
+        ? columns.find((col) => col.cards.some((c) => c.id === overCard.id))
+        : columns.find((col) => col.id === over.id);
+
+      if (!sourceColumn || !targetColumn) return;
+
+      const sourceIndex = sourceColumn.cards.findIndex((c) => c.id === active.id);
+      const targetIndex = overCard
+        ? targetColumn.cards.findIndex((c) => c.id === overCard.id)
+        : targetColumn.cards.length;
+
+      const movingCard = { ...activeCard, columnId: targetColumn.id };
+
+      sourceColumn.cards.splice(sourceIndex, 1);
+      targetColumn.cards.splice(targetIndex, 0, movingCard);
+
+      targetColumn.cards.forEach((card, index) => {
+        card.order = index;
+        updateCard.mutate({
+          cardId: card.id,
+          content: card.content,
+          order: card.order,
+          columnId: card.columnId,
+        });
+      });
+
+      if (sourceColumn.id !== targetColumn.id) {
+        sourceColumn.cards.forEach((card, index) => {
+          card.order = index;
+          updateCard.mutate({
+            cardId: card.id,
+            content: card.content,
+            order: card.order,
+            columnId: card.columnId,
+          });
+        });
+      }
+    } else {
+      const oldIndex = columns.findIndex((c) => c.id === active.id);
+      const newIndex = columns.findIndex((c) => c.id === over.id);
+      if (oldIndex === -1 || newIndex === -1) return;
+
+      const newOrder = arrayMove(columns, oldIndex, newIndex);
+      newOrder.forEach((col, index) => {
+        col.order = index;
+        updateColumn.mutate({
+          columnId: col.id,
+          title: col.title,
+          order: col.order,
+        });
+      });
+    }
+  };
 
   return (
     <div className="p-4">
@@ -156,8 +208,10 @@ export default function KanbanBoardPage() {
       </div>
       <DndContext
         collisionDetection={rectIntersection}
-        modifiers={[restrictToHorizontalAxis]}
+        onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
+        sensors={sensors}
       >
         <SortableContext items={columns.map((col) => col.id)}>
           <div className="flex gap-25 overflow-x-auto pb-4">
@@ -165,13 +219,19 @@ export default function KanbanBoardPage() {
               <p className="text-muted-foreground">No columns yet.</p>
             ) : (
               columns.map((column: ColumnType) => (
-                <div key={column.id} className="w-[300px] shrink-0">
+                <div
+                  key={column.id}
+                  className={`w-[300px] shrink-0 transition-all duration-200 ease-in-out ${
+                    overId === column.id ? 'bg-muted/40 border-primary border-2' : ''
+                  }`}
+                >
                   <Column column={column} />
                 </div>
               ))
             )}
           </div>
         </SortableContext>
+        <DragOverlay>{activeCard ? <Card card={activeCard} /> : null}</DragOverlay>
       </DndContext>
     </div>
   );
