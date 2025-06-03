@@ -1,25 +1,28 @@
 // File: app/api/kanban/boards/[boardId]/route.ts
 import { db } from '@/lib/prisma';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(_: Request, { params }: { params: { boardId: string } }) {
+export async function GET(req: NextRequest) {
+  const boardId = req.nextUrl.pathname.split('/').pop()!;
   const board = await db.kanbanBoard.findUnique({
-    where: { id: params.boardId },
+    where: { id: boardId },
     include: { columns: { include: { cards: true } } },
   });
   return NextResponse.json(board);
 }
 
-export async function PUT(req: Request, { params }: { params: { boardId: string } }) {
+export async function PUT(req: NextRequest) {
+  const boardId = req.nextUrl.pathname.split('/').pop()!;
   const { title } = await req.json();
   const board = await db.kanbanBoard.update({
-    where: { id: params.boardId },
+    where: { id: boardId },
     data: { title },
   });
   return NextResponse.json(board);
 }
 
-export async function DELETE(_: Request, { params }: { params: { boardId: string } }) {
-  await db.kanbanBoard.delete({ where: { id: params.boardId } });
+export async function DELETE(req: NextRequest) {
+  const boardId = req.nextUrl.pathname.split('/').pop()!;
+  await db.kanbanBoard.delete({ where: { id: boardId } });
   return NextResponse.json({ message: 'Board deleted' });
 }

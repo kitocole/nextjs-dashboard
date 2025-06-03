@@ -1,15 +1,18 @@
-// app/lib/customAdapter.ts
+// app/api/auth/[...nextauth]/customAdapter.ts
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { db } from '@/lib/prisma';
-import { Role } from '@prisma/client'; // Import the Role enum
+import { Role } from '@prisma/client';
+
+function isValidRole(role: string): role is Role {
+  return (Object.values(Role) as string[]).includes(role);
+}
 
 export function CustomAdapter() {
   const adapter = PrismaAdapter(db);
 
   return {
     ...adapter,
-    // Override only createUser:
-    // Note: emailVerified comes in as `boolean | null` from your profile() mappers
+
     async createUser(data: {
       email: string;
       emailVerified: boolean | null;
@@ -18,6 +21,8 @@ export function CustomAdapter() {
       lastName: string;
       role: string;
     }) {
+      const safeRole: Role = isValidRole(data.role) ? data.role : Role.USER;
+
       return db.user.create({
         data: {
           firstName: data.firstName,
@@ -26,10 +31,9 @@ export function CustomAdapter() {
           suffix: null,
           email: data.email,
           image: data.image,
-          // convert boolean → Date or leave null
           emailVerified: data.emailVerified ? new Date() : null,
-          role: (data.role as Role) || Role.USER, // Cast to Role enum
-          passwordHash: '', // leave blank for OAuth users
+          role: safeRole,
+          passwordHash: '',
         },
       });
     },

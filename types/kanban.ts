@@ -11,3 +11,10 @@ export interface ColumnType {
   order: number;
   cards: CardType[];
 }
+
+export interface BoardType {
+  id: string;
+  title: string;
+  ownerId: string;
+  columns: ColumnType[];
+}

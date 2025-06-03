@@ -1,4 +1,4 @@
-// app/lib/route.ts
+// app/api/auth/[...nextauth]/authOptions.ts
 import type { NextAuthOptions } from 'next-auth';
 
 import GoogleProvider from 'next-auth/providers/google';
@@ -43,9 +43,9 @@ export const authOptions: NextAuthOptions = {
           firstName: profile.given_name,
           lastName: profile.family_name,
           emailVerified: profile.email_verified,
-          role: 'User', // Default role or fetch dynamically if needed
-          middleName: '', // Default or fetch dynamically
-          suffix: '', // Default or fetch dynamically
+          role: 'USER', // ✅ Use enum string exactly
+          middleName: '',
+          suffix: '',
         };
       },
     }),
@@ -61,9 +61,9 @@ export const authOptions: NextAuthOptions = {
           firstName: profile.name ?? '',
           lastName: profile.login,
           emailVerified: null,
-          role: 'User', // Default role or fetch dynamically if needed
-          middleName: '', // Default or fetch dynamically
-          suffix: '', // Default or fetch dynamically
+          role: 'USER', // ✅ Use enum string exactly
+          middleName: '',
+          suffix: '',
         };
       },
     }),
@@ -102,7 +102,6 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        console.log('User:', user);
         token.role = user.role;
         token.id = user.id;
         token.email = user.email;

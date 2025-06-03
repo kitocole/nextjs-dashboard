@@ -6,6 +6,7 @@ type KanbanState = {
   draggingCardId: string | null;
   setSelectedBoardId: (id: string) => void;
   setDraggingCardId: (id: string | null) => void;
+  resetKanbanStore: () => void;
 };
 
 export const useKanbanStore = create<KanbanState>((set) => ({
@@ -13,4 +14,5 @@ export const useKanbanStore = create<KanbanState>((set) => ({
   draggingCardId: null,
   setSelectedBoardId: (id) => set({ selectedBoardId: id }),
   setDraggingCardId: (id) => set({ draggingCardId: id }),
+  resetKanbanStore: () => set({ selectedBoardId: null, draggingCardId: null }),
 }));

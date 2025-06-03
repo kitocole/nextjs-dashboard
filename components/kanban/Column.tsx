@@ -1,4 +1,3 @@
-// File: components/kanban/Column.tsx
 'use client';
 
 import { useSortable, SortableContext } from '@dnd-kit/sortable';
@@ -10,7 +9,19 @@ import { useDeleteColumn, useUpdateColumn, useCreateCard } from '@/hooks/useKanb
 import Card from './Card';
 import { ColumnType } from '@/types/kanban';
 
-export default function Column({ column }: { column: ColumnType }) {
+export default function Column({
+  column,
+  activeCardId,
+  overCardId,
+  isColumnDragging,
+  overColumnId,
+}: {
+  column: ColumnType;
+  activeCardId: string | null;
+  overCardId: string | null;
+  isColumnDragging: boolean;
+  overColumnId: string | null;
+}) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id: column.id,
   });
@@ -23,10 +34,12 @@ export default function Column({ column }: { column: ColumnType }) {
 
   const sortedCards = [...column.cards].sort((a, b) => a.order - b.order);
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
+  const style = isColumnDragging
+    ? {
+        transform: CSS.Transform.toString(transform),
+        transition,
+      }
+    : {};
 
   const handleTitleBlur = () => {
     if (title !== column.title) {
@@ -53,7 +66,9 @@ export default function Column({ column }: { column: ColumnType }) {
     <div
       ref={setNodeRef}
       style={style}
-      className="h-[50vh] w-[380px] overflow-y-auto rounded-md border bg-white shadow-sm dark:bg-neutral-900"
+      className={`h-[50vh] w-[380px] overflow-y-auto rounded-md border bg-white shadow-sm transition-all duration-200 ease-in-out dark:bg-neutral-900 ${
+        overColumnId === column.id && !activeCardId ? 'ring-primary ring-2' : ''
+      }`}
     >
       <div className="flex items-center justify-between gap-2 border-b p-2">
         <span {...attributes} {...listeners} className="text-muted-foreground cursor-grab">
@@ -82,12 +97,19 @@ export default function Column({ column }: { column: ColumnType }) {
         </button>
       </div>
 
-      {/* Let SortableContext live here, but only for cards — it will still be managed by the main DndContext in page.tsx */}
       <SortableContext items={sortedCards.map((c) => c.id)}>
         <div className="p-2">
           {sortedCards.map((card) => (
-            <Card key={card.id} card={card} />
+            <div key={card.id}>
+              {activeCardId && overCardId === card.id && card.id !== activeCardId && (
+                <div className="bg-primary/50 h-2 rounded transition-all duration-150" />
+              )}
+              <Card card={card} />
+            </div>
           ))}
+          {activeCardId && overCardId && !sortedCards.find((c) => c.id === overCardId) && (
+            <div className="bg-primary/50 h-2 rounded transition-all duration-150" />
+          )}
           <button
             onClick={handleAddCard}
             className="bg-muted text-muted-foreground hover:bg-muted/70 mt-2 flex w-full items-center justify-center gap-1 rounded p-1 text-xs"
