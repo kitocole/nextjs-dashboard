@@ -5,7 +5,6 @@ import { CSS } from '@dnd-kit/utilities';
 import { useState } from 'react';
 import { GripVertical, Trash2, Plus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { useDeleteColumn, useUpdateColumn, useCreateCard } from '@/hooks/useKanbanBoard';
 import Card from './Card';
 import { ColumnType } from '@/types/kanban';
 
@@ -13,25 +12,30 @@ export default function Column({
   column,
   activeCardId,
   overCardId,
+  isColumnDragging,
   overColumnId,
+  onAddCard,
+  onDeleteCard,
+  onDeleteColumn,
+  onUpdateCard,
 }: {
   column: ColumnType;
   activeCardId: string | null;
   overCardId: string | null;
   isColumnDragging: boolean;
   overColumnId: string | null;
+  onAddCard: (columnId: string) => void;
+  onDeleteCard: (columnId: string, cardId: string) => void;
+  onDeleteColumn: (columnId: string) => void;
+  onUpdateCard: (cardId: string, content: string, order: number, columnId: string) => void;
 }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id: column.id,
   });
 
   const [title, setTitle] = useState(column.title);
   const [editing, setEditing] = useState(false);
-  const updateColumn = useUpdateColumn();
-  const deleteColumn = useDeleteColumn();
-  const createCard = useCreateCard();
-
-  const sortedCards = [...column.cards].sort((a, b) => a.order - b.order);
+  const sortedCards = [...(column.cards ?? [])].sort((a, b) => a.order - b.order);
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -39,24 +43,10 @@ export default function Column({
   };
 
   const handleTitleBlur = () => {
-    if (title !== column.title) {
-      updateColumn.mutate({ columnId: column.id, title, order: column.order });
-    }
     setEditing(false);
-  };
-
-  const handleDelete = () => {
-    if (confirm('Delete this column?')) {
-      deleteColumn.mutate(column.id);
+    if (title.trim() === '') {
+      setTitle(column.title); // Reset to original title if empty
     }
-  };
-
-  const handleAddCard = () => {
-    createCard.mutate({
-      content: 'New Card',
-      order: sortedCards.length,
-      columnId: column.id,
-    });
   };
 
   return (
@@ -65,7 +55,7 @@ export default function Column({
       style={style}
       className={`h-[50vh] w-[380px] rounded-md border bg-white shadow-sm transition-transform duration-200 ease-in-out dark:bg-neutral-900 ${
         overColumnId === column.id && !activeCardId ? 'ring-primary ring-2' : ''
-      } ${isDragging ? '' : ''}`}
+      } ${isColumnDragging ? 'opacity-50' : ''}`}
     >
       <div className="flex items-center justify-between gap-2 border-b p-2">
         <span {...attributes} {...listeners} className="text-muted-foreground cursor-grab">
@@ -89,7 +79,10 @@ export default function Column({
             {title}
           </h2>
         )}
-        <button onClick={handleDelete} className="text-muted-foreground hover:text-destructive">
+        <button
+          onClick={() => onDeleteColumn(column.id)}
+          className="text-muted-foreground hover:text-destructive"
+        >
           <Trash2 size={16} />
         </button>
       </div>
@@ -97,18 +90,16 @@ export default function Column({
       <SortableContext items={sortedCards.map((c) => c.id)}>
         <div className="p-2">
           {sortedCards.map((card) => (
-            <div key={card.id}>
-              {activeCardId && overCardId === card.id && card.id !== activeCardId && (
-                <div className="bg-primary/50 h-2 rounded transition-all duration-150" />
-              )}
-              <Card card={card} />
-            </div>
+            <Card
+              key={card.id}
+              card={card}
+              onDelete={() => onDeleteCard(column.id, card.id)}
+              isOver={!!(activeCardId && overCardId === card.id && card.id !== activeCardId)}
+              onUpdate={(newContent) => onUpdateCard(card.id, newContent, card.order, column.id)}
+            />
           ))}
-          {activeCardId && overCardId && !sortedCards.find((c) => c.id === overCardId) && (
-            <div className="bg-primary/50 h-2 rounded transition-all duration-150" />
-          )}
           <button
-            onClick={handleAddCard}
+            onClick={() => onAddCard(column.id)}
             className="bg-muted text-muted-foreground hover:bg-muted/70 mt-2 flex w-full items-center justify-center gap-1 rounded p-1 text-xs"
           >
             <Plus size={14} /> Add Card

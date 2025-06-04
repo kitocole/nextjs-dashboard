@@ -192,7 +192,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="flex flex-col gap-8 bg-white p-8 text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+    <div className="flex flex-col gap-8 p-8 text-gray-900 dark:bg-gray-900 dark:text-gray-100">
       {/* Stat cards */}
       <DndContext
         sensors={sensors}

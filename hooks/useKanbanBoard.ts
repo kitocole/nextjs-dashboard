@@ -51,7 +51,6 @@ export function useCreateColumn() {
 }
 
 export function useUpdateColumn() {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
       columnId,
@@ -68,9 +67,6 @@ export function useUpdateColumn() {
       });
       if (!res.ok) throw new Error('Failed to update column');
       return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['kanbanBoards'] });
     },
   });
 }
@@ -111,7 +107,6 @@ export function useCreateCard() {
 }
 
 export function useUpdateCard() {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
       cardId,
@@ -130,9 +125,7 @@ export function useUpdateCard() {
       if (!res.ok) throw new Error('Failed to update card');
       return res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['kanbanBoards'] });
-    },
+    // No query invalidation
   });
 }
 

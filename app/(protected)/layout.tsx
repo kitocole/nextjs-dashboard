@@ -9,7 +9,7 @@ export default async function ProtectedLayout({ children }: { children: ReactNod
   if (!session) redirect('/login');
 
   return (
-    <div className="flex flex-1 flex-col overflow-hidden bg-white dark:bg-gray-900">
+    <div className="flex flex-1 flex-col overflow-hidden dark:bg-gray-900">
       <main className="mt-5 flex-1 overflow-y-auto p-4 md:p-8">{children}</main>
     </div>
   );
