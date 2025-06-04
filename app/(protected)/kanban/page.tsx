@@ -318,7 +318,7 @@ export default function KanbanBoardPage() {
         </SortableContext>
         <DragOverlay>
           {activeCard ? (
-            <Card card={activeCard} onDelete={() => {}} />
+            <Card card={activeCard} onDelete={() => {}} onUpdate={() => {}} />
           ) : activeColumn ? (
             <Column
               column={{ ...activeColumn, cards: activeColumn.cards ?? [] }}
@@ -329,6 +329,7 @@ export default function KanbanBoardPage() {
               onAddCard={() => {}}
               onDeleteCard={() => {}}
               onDeleteColumn={() => {}}
+              onUpdateCard={() => {}}
             />
           ) : null}
         </DragOverlay>
