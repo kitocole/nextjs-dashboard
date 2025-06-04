@@ -1,17 +1,25 @@
 // File: app/api/kanban/columns/[columnId]/route.ts
 import { db } from '@/lib/prisma';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function PUT(req: Request, { params }: { params: { columnId: string } }) {
+export async function PUT(req: NextRequest) {
+  const columnId = req.nextUrl.pathname.split('/').pop()!;
   const { title, order } = await req.json();
+
   const column = await db.kanbanColumn.update({
-    where: { id: params.columnId },
+    where: { id: columnId },
     data: { title, order },
   });
+
   return NextResponse.json(column);
 }
 
-export async function DELETE(_: Request, { params }: { params: { columnId: string } }) {
-  await db.kanbanColumn.delete({ where: { id: params.columnId } });
+export async function DELETE(req: NextRequest) {
+  const columnId = req.nextUrl.pathname.split('/').pop()!;
+
+  await db.kanbanColumn.delete({
+    where: { id: columnId },
+  });
+
   return NextResponse.json({ message: 'Column deleted' });
 }

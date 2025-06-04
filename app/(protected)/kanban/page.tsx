@@ -57,7 +57,7 @@ export default function KanbanBoardPage() {
   const sensors = useSensors(useSensor(PointerSensor));
 
   const board: BoardType | undefined = useMemo(
-    () => boards?.find((b) => b.id === selectedBoardId) ?? boards?.[0],
+    () => boards?.find((b: BoardType) => b.id === selectedBoardId) ?? boards?.[0],
     [boards, selectedBoardId],
   );
 
@@ -242,7 +242,19 @@ export default function KanbanBoardPage() {
             )}
           </div>
         </SortableContext>
-        <DragOverlay>{activeCard ? <Card card={activeCard} /> : null}</DragOverlay>
+        <DragOverlay>
+          {activeCard ? (
+            <Card card={activeCard} />
+          ) : activeColumn ? (
+            <Column
+              column={activeColumn}
+              activeCardId={null}
+              overCardId={null}
+              isColumnDragging={true}
+              overColumnId={null}
+            />
+          ) : null}
+        </DragOverlay>
       </DndContext>
     </div>
   );

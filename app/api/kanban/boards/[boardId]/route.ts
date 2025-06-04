@@ -1,9 +1,8 @@
-// File: app/api/kanban/boards/[boardId]/route.ts
 import { db } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
-  const boardId = req.nextUrl.pathname.split('/').pop()!;
+  const boardId = req.url.split('/').pop()!;
   const board = await db.kanbanBoard.findUnique({
     where: { id: boardId },
     include: { columns: { include: { cards: true } } },
@@ -12,7 +11,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
-  const boardId = req.nextUrl.pathname.split('/').pop()!;
+  const boardId = req.url.split('/').pop()!;
   const { title } = await req.json();
   const board = await db.kanbanBoard.update({
     where: { id: boardId },
@@ -22,7 +21,9 @@ export async function PUT(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const boardId = req.nextUrl.pathname.split('/').pop()!;
-  await db.kanbanBoard.delete({ where: { id: boardId } });
+  const boardId = req.url.split('/').pop()!;
+  await db.kanbanBoard.delete({
+    where: { id: boardId },
+  });
   return NextResponse.json({ message: 'Board deleted' });
 }
