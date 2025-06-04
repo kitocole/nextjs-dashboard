@@ -30,7 +30,7 @@ export function Navbar() {
   // Determine current theme
   const current = theme === 'system' ? systemTheme : theme;
   const isDark = current === 'dark';
-  const toggleTheme = () => setTheme(isDark ? 'dark' : 'light');
+  const toggleTheme = () => setTheme(isDark ? 'light' : 'dark');
 
   const { notifications, unreadCount, setNotifications, markAsRead, markAllAsRead } =
     useNotificationStore();

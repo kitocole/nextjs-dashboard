@@ -1,9 +1,12 @@
 // hooks/useKanbanBoard.ts
+import { BoardType } from '@/types/kanban';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 // Boards
-export function useKanbanBoards() {
-  return useQuery({
+import type { UseQueryResult } from '@tanstack/react-query';
+
+export function useKanbanBoards(): UseQueryResult<BoardType[], Error> {
+  return useQuery<BoardType[], Error>({
     queryKey: ['kanbanBoards'],
     queryFn: async () => {
       const res = await fetch('/api/kanban/boards');
@@ -23,6 +26,22 @@ export function useCreateBoard() {
         body: JSON.stringify(data),
       });
       if (!res.ok) throw new Error('Failed to create board');
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['kanbanBoards'] });
+    },
+  });
+}
+
+export function useDeleteBoard() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (boardId: string) => {
+      const res = await fetch(`/api/kanban/boards/${boardId}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Failed to delete board');
       return res.json();
     },
     onSuccess: () => {
