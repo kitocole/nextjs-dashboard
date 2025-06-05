@@ -12,6 +12,8 @@ A modern, customizable dashboard template for SaaS apps — built with Next.js, 
 
 🧩 Drag-and-Drop Widgets — Powered by dnd-kit
 
+🧩 Kanban Board — Powered by dnd-kit
+
 🗃️ Prisma + PostgreSQL — Scalable database integration
 
 ⚙️ Customizable Layouts — Persisted per user
