@@ -1,122 +1,104 @@
-SaaS Dashboard Kit
-A modern, customizable dashboard template for SaaS apps — built with Next.js, Tailwind CSS, Prisma, and Zustand. Features real-time drag-and-drop functionality, role-based access, data visualizations, and secure authentication.
+# Next.js SaaS Dashboard Kit
 
-🌟 Features
-🌗 Light & Dark Theme — Powered by next-themes
+A modern, full‑featured dashboard template for SaaS products built with **Next.js**, **Tailwind CSS** and **Prisma**. It provides drag‑and‑drop widgets, interactive charts and secure authentication out of the box so you can focus on shipping your product.
 
-🔐 Secure Auth — OAuth and Email login via NextAuth.js
+## Features
 
-🧑‍💼 Role-Based Access Control — User & admin permissions
+- **Light & dark themes** powered by `next-themes`
+- **Secure auth** with OAuth and email via NextAuth.js
+- **Role‑based access control** for user and admin flows
+- **Interactive charts** using Recharts and CountUp.js
+- **Drag‑and‑drop widgets** with `dnd-kit`
+- **Kanban board** with real‑time sorting
+- **Prisma + PostgreSQL** database integration
+- **Customizable layouts** persisted per user
+- **Docker support** for local development
 
-📊 Interactive Charts — Built with Recharts and CountUp.js
+## Tech Stack
 
-🧩 Drag-and-Drop Widgets — Powered by dnd-kit
+| Layer     | Tools                            |
+| --------- | -------------------------------- |
+| Frontend  | Next.js App Router, Tailwind CSS |
+| State     | Zustand                          |
+| Auth      | NextAuth.js                      |
+| Backend   | Prisma ORM (PostgreSQL)          |
+| Drag/Drop | dnd-kit                          |
+| Charts    | Recharts, CountUp.js             |
+| DevOps    | Docker Compose                   |
 
-🧩 Kanban Board — Powered by dnd-kit
+## Getting Started
 
-🗃️ Prisma + PostgreSQL — Scalable database integration
-
-⚙️ Customizable Layouts — Persisted per user
-
-🐳 Docker Support — Easy local development with Docker Compose
-
-🚀 Live Demo
-View Demo
-
-🛠️ Tech Stack
-Layer Tools
-Frontend Next.js App Router, Tailwind CSS
-State Zustand
-Auth NextAuth.js
-Backend Prisma ORM (PostgreSQL)
-Drag/Drop dnd-kit
-Charts Recharts, CountUp.js
-DevOps Docker Compose
-
-📦 Getting Started
-
-1. Clone the repository
-   bash
-   Copy
-   Edit
+1. **Clone the repository**
+   ```bash
    git clone https://github.com/kitocole/nextjs-dashboard.git
    cd nextjs-dashboard
-2. Install dependencies
-   bash
-   Copy
-   Edit
+   ```
+2. **Install dependencies**
+   ```bash
    npm install
+   # or
+   pnpm install
+   ```
+3. **Set environment variables** – create a `.env` file in the project root:
 
-# or
+   ```env
+   # PostgreSQL
+   POSTGRES_USER=postgres
+   POSTGRES_PASSWORD=your_db_password
+   POSTGRES_DB=dashboard
+   DATABASE_URL="postgresql://postgres:your_db_password@localhost:5432/dashboard?schema=public"
 
-pnpm install 3. Set environment variables
-Create a .env file in the root:
+   # NextAuth
+   NEXTAUTH_URL=http://localhost:3000
+   NEXTAUTH_SECRET=your_secret
+   GITHUB_ID=your_github_client_id
+   GITHUB_SECRET=your_github_client_secret
+   GOOGLE_CLIENT_ID=your_google_client_id
+   GOOGLE_CLIENT_SECRET=your_google_client_secret
+   ```
 
-env
-Copy
-Edit
+4. **Start the database and run migrations**
+   ```bash
+   docker-compose up -d
+   npx prisma migrate dev --name init
+   npx prisma db seed
+   ```
+5. **Run the development server**
+   ```bash
+   npm run dev
+   # or
+   pnpm dev
+   ```
+   Then open [http://localhost:3000](http://localhost:3000) in your browser.
 
-# PostgreSQL
+## Folder Structure
 
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=your_db_password
-POSTGRES_DB=dashboard
-DATABASE_URL="postgresql://postgres:your_db_password@localhost:5432/dashboard?schema=public"
-
-# NextAuth
-
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=your_secret
-GITHUB_ID=your_github_client_id
-GITHUB_SECRET=your_github_client_secret
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret 4. Start the database and run migrations
-bash
-Copy
-Edit
-docker-compose up -d
-npx prisma migrate dev --name init
-npx prisma db seed 5. Run the dev server
-bash
-Copy
-Edit
-npm run dev
-
-# or
-
-pnpm dev
-Then open http://localhost:3000.
-
-🗂️ Folder Structure
-php
-Copy
-Edit
-├── app/ # Next.js routes and layouts
-├── components/ # Reusable UI components
-├── hooks/ # Zustand and logic hooks
-├── lib/ # Prisma and utilities
-├── prisma/ # Schema and DB seed scripts
-├── public/ # Static files
-├── styles/ # Tailwind setup
-├── docker-compose.yml # Local PostgreSQL config
+```
+├── app/              # Next.js routes and layouts
+├── components/       # Reusable UI components
+├── hooks/            # Zustand and logic hooks
+├── lib/              # Prisma and utilities
+├── prisma/           # Schema and DB seed scripts
+├── public/           # Static files
+├── styles/           # Tailwind setup
+├── docker-compose.yml# Local PostgreSQL config
 └── tailwind.config.js
-📈 Roadmap
-✅ Drag-and-drop columns/cards
+```
 
-✅ Role-based access control
+## Roadmap
 
-✅ OAuth with Google/GitHub
+- [x] Drag‑and‑drop columns/cards
+- [x] Role‑based access control
+- [x] OAuth with Google/GitHub
+- [x] Custom widget layouts
+- [ ] More chart types
+- [ ] Unit/integration tests
+- [ ] CI/CD with GitHub Actions
 
-✅ Custom widget layouts
+## Contributing
 
-🟧 More chart types
+Issues and pull requests are welcome! Please open an issue to discuss what you would like to change.
 
-🟧 Unit/integration tests
+## License
 
-🟧 CI/CD with GitHub Actions
-
-🤝 Contributing
-Open issues or submit PRs to help improve this kit — all contributions welcome!
-
-📄 License
 This project is licensed under the MIT License.
