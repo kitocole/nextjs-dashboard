@@ -13,13 +13,11 @@ import {
   useDeleteColumn,
   useDeleteCard,
 } from './useKanbanData';
-import { useKanbanStore } from '@/stores/kanbanStore';
 import type { CardType, ColumnType, BoardType } from '@/types/kanban';
 
 export function useKanbanLogic() {
   const { data: session } = useSession();
   const ownerId = session?.user?.id;
-  const { selectedBoardId, setSelectedBoardId } = useKanbanStore();
 
   const { data: boards, isLoading } = useKanbanBoards();
   const createBoard = useCreateBoard();
@@ -35,6 +33,7 @@ export function useKanbanLogic() {
   const [activeColumn, setActiveColumn] = useState<ColumnType | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
+  const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);
 
   const board: BoardType | null = useMemo(() => {
     return boards?.find((b: BoardType) => b.id === selectedBoardId) ?? boards?.[0] ?? null;
@@ -235,5 +234,6 @@ export function useKanbanLogic() {
     handleDragOver,
     handleDragEnd,
     updateCard,
+    updateColumn,
   };
 }

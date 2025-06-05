@@ -11,23 +11,23 @@ import { ColumnType } from '@/types/kanban';
 export default function Column({
   column,
   activeCardId,
-  overCardId,
   isColumnDragging,
   overColumnId,
   onAddCard,
   onDeleteCard,
   onDeleteColumn,
   onUpdateCard,
+  onUpdateColumn,
 }: {
   column: ColumnType;
   activeCardId: string | null;
-  overCardId: string | null;
   isColumnDragging: boolean;
   overColumnId: string | null;
   onAddCard: (columnId: string) => void;
   onDeleteCard: (columnId: string, cardId: string) => void;
   onDeleteColumn: (columnId: string) => void;
   onUpdateCard: (cardId: string, content: string, order: number, columnId: string) => void;
+  onUpdateColumn: (columnId: string, title: string, order: number) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id: column.id,
@@ -44,9 +44,12 @@ export default function Column({
 
   const handleTitleBlur = () => {
     setEditing(false);
-    if (title.trim() === '') {
+    const trimmed = title.trim();
+    if (!trimmed || trimmed === column.title) {
       setTitle(column.title); // Reset to original title if empty
+      return;
     }
+    onUpdateColumn(column.id, trimmed, column.order);
   };
 
   return (
@@ -94,7 +97,6 @@ export default function Column({
               key={card.id}
               card={card}
               onDelete={() => onDeleteCard(column.id, card.id)}
-              isOver={!!(activeCardId && overCardId === card.id && card.id !== activeCardId)}
               onUpdate={(newContent) => onUpdateCard(card.id, newContent, card.order, column.id)}
             />
           ))}

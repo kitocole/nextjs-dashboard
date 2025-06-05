@@ -35,6 +35,7 @@ import {
 export default function KanbanBoardPage() {
   const sensors = useSensors(useSensor(PointerSensor));
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   const [newBoardTitle, setNewBoardTitle] = useState('');
 
   const {
@@ -46,7 +47,6 @@ export default function KanbanBoardPage() {
     activeCard,
     activeColumn,
     activeId,
-    overId,
     handleAddCardOptimistic,
     handleDeleteCardOptimistic,
     handleDeleteColumnOptimistic,
@@ -56,6 +56,7 @@ export default function KanbanBoardPage() {
     handleDragOver,
     handleDragEnd,
     updateCard,
+    updateColumn,
     handleDeleteBoardOptimistic,
   } = useKanbanLogic();
 
@@ -164,12 +165,14 @@ export default function KanbanBoardPage() {
                   <Column
                     column={{ ...column, cards: column.cards ?? [] }}
                     activeCardId={activeCard?.id || null}
-                    overCardId={activeCard ? overId : null}
                     isColumnDragging={!activeCard && activeId === column.id}
                     overColumnId={null}
                     onAddCard={handleAddCardOptimistic}
                     onDeleteCard={handleDeleteCardOptimistic}
                     onDeleteColumn={handleDeleteColumnOptimistic}
+                    onUpdateColumn={(columnId, title, order) =>
+                      updateColumn.mutate({ columnId, title, order })
+                    }
                     onUpdateCard={(cardId, content, order, columnId) =>
                       updateCard.mutate({ cardId, content, order, columnId })
                     }
@@ -187,13 +190,13 @@ export default function KanbanBoardPage() {
             <Column
               column={{ ...activeColumn, cards: activeColumn.cards ?? [] }}
               activeCardId={null}
-              overCardId={null}
               isColumnDragging={true}
               overColumnId={null}
               onAddCard={() => {}}
               onDeleteCard={() => {}}
               onDeleteColumn={() => {}}
               onUpdateCard={() => {}}
+              onUpdateColumn={() => {}}
             />
           ) : null}
         </DragOverlay>

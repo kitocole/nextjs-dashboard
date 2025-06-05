@@ -10,15 +10,16 @@ import { CardType } from '@/types/kanban';
 export default function Card({
   card,
   onDelete,
-  onUpdate,
-  isOver = false,
+  onUpdate = () => {},
 }: {
   card: CardType;
   onDelete: () => void;
-  onUpdate: (newContent: string) => void;
-  isOver?: boolean;
+  onUpdate?: (content: string) => void;
 }) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: card.id });
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+    id: card.id,
+  });
+
   const [content, setContent] = useState(card.content);
   const [editing, setEditing] = useState(false);
 
@@ -29,18 +30,14 @@ export default function Card({
 
   const handleBlur = () => {
     setEditing(false);
-    if (content !== card.content) {
-      onUpdate(content);
-    }
+    if (content !== card.content) onUpdate(content);
   };
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={`mb-2 rounded border bg-white p-2 text-sm shadow-sm transition-opacity duration-150 dark:bg-neutral-800 ${
-        isOver ? 'opacity-50' : ''
-      }`}
+      className="mb-2 min-h-[56px] rounded border bg-white p-2 text-sm shadow-sm dark:bg-neutral-800"
     >
       <div className="flex items-center justify-between">
         <span {...attributes} {...listeners} className="text-muted-foreground cursor-grab">
@@ -60,7 +57,7 @@ export default function Card({
           className="mt-1 h-7 text-sm"
         />
       ) : (
-        <p className="mt-1 cursor-pointer" onClick={() => setEditing(true)}>
+        <p className="mt-1 cursor-pointer break-words" onClick={() => setEditing(true)}>
           {content}
         </p>
       )}
