@@ -196,7 +196,7 @@ export function useKanbanLogic() {
       sourceColumn.cards.splice(sourceIndex, 1);
       targetColumn.cards.splice(targetIndex, 0, movingCard);
 
-      [...sourceColumn.cards, ...targetColumn.cards].forEach((card, index) => {
+      sourceColumn.cards.forEach((card, index) => {
         card.order = index;
         updateCard.mutate({
           cardId: card.id,
@@ -205,6 +205,18 @@ export function useKanbanLogic() {
           columnId: card.columnId,
         });
       });
+
+      if (sourceColumn.id !== targetColumn.id) {
+        targetColumn.cards.forEach((card, index) => {
+          card.order = index;
+          updateCard.mutate({
+            cardId: card.id,
+            content: card.content,
+            order: card.order,
+            columnId: card.columnId,
+          });
+        });
+      }
     } else {
       const oldIndex = columns.findIndex((c) => c.id === activeId);
       const newIndex = columns.findIndex((c) => c.id === overId);
