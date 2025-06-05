@@ -2,7 +2,7 @@
 
 import { useSortable, SortableContext } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { GripVertical, Trash2, Plus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import Card from './Card';
