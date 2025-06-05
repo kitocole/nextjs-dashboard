@@ -54,10 +54,10 @@ export default function KanbanBoardPage() {
     handleDeleteColumnOptimistic,
     handleDeleteBoardOptimistic,
     handleCreateBoard,
+    handleUpdateCardOptimistic,
     handleDragStart,
     handleDragOver,
     handleDragEnd,
-    updateCard,
     updateColumn,
   } = useKanbanLogic();
 
@@ -166,7 +166,7 @@ export default function KanbanBoardPage() {
                       updateColumn.mutate({ columnId, title, order })
                     }
                     onUpdateCard={(cardId, content, order, columnId) =>
-                      updateCard.mutate({ cardId, content, order, columnId })
+                      handleUpdateCardOptimistic(cardId, content, order, columnId)
                     }
                   />
                 </div>

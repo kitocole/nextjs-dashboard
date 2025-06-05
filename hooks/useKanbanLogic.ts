@@ -130,6 +130,28 @@ export function useKanbanLogic() {
     );
   };
 
+  const handleUpdateCardOptimistic = (
+    cardId: string,
+    content: string,
+    order: number,
+    columnId: string,
+  ) => {
+    const column = columns.find((col) => col.id === columnId);
+    if (!column) return;
+    const card = column.cards.find((c) => c.id === cardId);
+    if (!card) return;
+    const previous = card.content;
+    card.content = content;
+    updateCard.mutate(
+      { cardId, content, order, columnId },
+      {
+        onError: () => {
+          card.content = previous;
+        },
+      },
+    );
+  };
+
   const handleCreateBoard = (title: string) => {
     if (!title.trim() || !ownerId) return;
     createBoard.mutate(
@@ -251,6 +273,7 @@ export function useKanbanLogic() {
     handleDeleteColumnOptimistic,
     handleDeleteBoardOptimistic,
     handleAddColumn,
+    handleUpdateCardOptimistic,
     handleCreateBoard,
     handleDragStart,
     handleDragOver,
