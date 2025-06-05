@@ -9,6 +9,15 @@ import {
   closestCorners,
 } from '@dnd-kit/core';
 import { SortableContext } from '@dnd-kit/sortable';
+import { Plus, MoreVertical } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+
+import { useKanbanLogic } from '@/hooks/useKanbanLogic';
+import Column from '@/components/kanban/Column';
+import Card from '@/components/kanban/Card';
+import SkeletonColumn from '@/components/kanban/SkeletonColumns';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -18,13 +27,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import Column from '@/components/kanban/Column';
-import Card from '@/components/kanban/Card';
-import SkeletonColumn from '@/components/kanban/SkeletonColumns';
-import { Plus, MoreVertical } from 'lucide-react';
-import { useState } from 'react';
-import { useKanbanLogic } from '@/hooks/useKanbanLogic';
-import { toast } from 'sonner';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,29 +37,28 @@ import {
 export default function KanbanBoardPage() {
   const sensors = useSensors(useSensor(PointerSensor));
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
   const [newBoardTitle, setNewBoardTitle] = useState('');
 
   const {
     boards,
     columns,
-    isLoading,
     selectedBoardId,
-    setSelectedBoardId,
+    isLoading,
     activeCard,
     activeColumn,
     activeId,
+    setSelectedBoardId,
+    handleAddColumn,
     handleAddCardOptimistic,
     handleDeleteCardOptimistic,
     handleDeleteColumnOptimistic,
-    handleAddColumn,
+    handleDeleteBoardOptimistic,
     handleCreateBoard,
     handleDragStart,
     handleDragOver,
     handleDragEnd,
     updateCard,
     updateColumn,
-    handleDeleteBoardOptimistic,
   } = useKanbanLogic();
 
   const handleBoardDelete = () => {
@@ -66,11 +67,21 @@ export default function KanbanBoardPage() {
     toast.success('Board deleted');
   };
 
+  const handleCreateBoardSubmit = () => {
+    const trimmed = newBoardTitle.trim();
+    if (!trimmed) return;
+    handleCreateBoard(trimmed);
+    toast.success('Board created');
+    setNewBoardTitle('');
+    setIsDialogOpen(false);
+  };
+
   return (
     <div className="p-4">
-      {/* Board selection and creation */}
+      {/* Top Bar */}
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-4">
+          {/* Board Selector */}
           <select
             className="rounded border px-3 py-2 text-base dark:bg-neutral-900"
             value={selectedBoardId ?? ''}
@@ -83,6 +94,7 @@ export default function KanbanBoardPage() {
             ))}
           </select>
 
+          {/* Create New Board Dialog */}
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button size="sm" variant="outline">
@@ -98,34 +110,18 @@ export default function KanbanBoardPage() {
                 placeholder="Board title"
                 value={newBoardTitle}
                 onChange={(e) => setNewBoardTitle(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    handleCreateBoard(newBoardTitle);
-                    toast.success('Board created');
-                    setNewBoardTitle('');
-                    setIsDialogOpen(false);
-                  }
-                }}
+                onKeyDown={(e) => e.key === 'Enter' && handleCreateBoardSubmit()}
               />
-              <Button
-                onClick={() => {
-                  handleCreateBoard(newBoardTitle);
-                  toast.success('Board created');
-                  setNewBoardTitle('');
-                  setIsDialogOpen(false);
-                }}
-              >
-                Create
-              </Button>
+              <Button onClick={handleCreateBoardSubmit}>Create</Button>
             </DialogContent>
           </Dialog>
         </div>
 
+        {/* Board Actions */}
         <div className="flex items-center gap-2">
           <Button onClick={handleAddColumn} size="sm">
             <Plus className="mr-1 h-4 w-4" /> Add Column
           </Button>
-
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
@@ -141,14 +137,15 @@ export default function KanbanBoardPage() {
         </div>
       </div>
 
+      {/* DnD Area */}
       <DndContext
         collisionDetection={closestCorners}
-        onDragStart={(event) => handleDragStart(event.active.id as string)}
+        sensors={sensors}
+        onDragStart={(event) => handleDragStart(event.active.id.toString())}
         onDragOver={(event) => handleDragOver(event.over?.id?.toString() ?? null)}
         onDragEnd={(event) =>
-          handleDragEnd(event.active.id as string, event.over?.id?.toString() ?? null)
+          handleDragEnd(event.active.id.toString(), event.over?.id?.toString() ?? null)
         }
-        sensors={sensors}
       >
         <SortableContext items={columns.map((col) => col.id)}>
           <div className="flex gap-22 overflow-x-auto pb-4">
@@ -158,15 +155,10 @@ export default function KanbanBoardPage() {
               <p className="text-muted-foreground">No columns yet.</p>
             ) : (
               columns.map((column) => (
-                <div
-                  key={column.id}
-                  className="w-[300px] shrink-0 transition-all duration-200 ease-in-out"
-                >
+                <div key={column.id} className="w-[300px] shrink-0">
                   <Column
                     column={{ ...column, cards: column.cards ?? [] }}
-                    activeCardId={activeCard?.id || null}
                     isColumnDragging={!activeCard && activeId === column.id}
-                    overColumnId={null}
                     onAddCard={handleAddCardOptimistic}
                     onDeleteCard={handleDeleteCardOptimistic}
                     onDeleteColumn={handleDeleteColumnOptimistic}
@@ -183,20 +175,14 @@ export default function KanbanBoardPage() {
           </div>
         </SortableContext>
 
+        {/* Drag Preview */}
         <DragOverlay>
           {activeCard ? (
-            <Card card={activeCard} onDelete={() => {}} onUpdate={() => {}} />
+            <Card card={activeCard} />
           ) : activeColumn ? (
             <Column
               column={{ ...activeColumn, cards: activeColumn.cards ?? [] }}
-              activeCardId={null}
               isColumnDragging={true}
-              overColumnId={null}
-              onAddCard={() => {}}
-              onDeleteCard={() => {}}
-              onDeleteColumn={() => {}}
-              onUpdateCard={() => {}}
-              onUpdateColumn={() => {}}
             />
           ) : null}
         </DragOverlay>

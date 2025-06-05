@@ -1,7 +1,7 @@
-//hooks/useKanbanLogic.ts
+'use client';
+
 import { useEffect, useMemo, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { arrayMove } from '@dnd-kit/sortable';
 import {
   useKanbanBoards,
   useCreateBoard,
@@ -13,7 +13,8 @@ import {
   useDeleteColumn,
   useDeleteCard,
 } from './useKanbanData';
-import type { CardType, ColumnType, BoardType } from '@/types/kanban';
+import type { BoardType, ColumnType, CardType } from '@/types/kanban';
+import { arrayMove } from '@dnd-kit/sortable';
 
 export function useKanbanLogic() {
   const { data: session } = useSession();
@@ -36,24 +37,27 @@ export function useKanbanLogic() {
   const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);
 
   const board: BoardType | null = useMemo(() => {
-    return boards?.find((b: BoardType) => b.id === selectedBoardId) ?? boards?.[0] ?? null;
+    return boards?.find((b) => b.id === selectedBoardId) ?? boards?.[0] ?? null;
   }, [boards, selectedBoardId]);
 
-  const columns: ColumnType[] =
-    board?.columns.sort((a: { order: number }, b: { order: number }) => a.order - b.order) || [];
+  const columns: ColumnType[] = board?.columns.slice().sort((a, b) => a.order - b.order) ?? [];
 
   useEffect(() => {
     if (!selectedBoardId && board) {
       setSelectedBoardId(board.id);
     }
-  }, [board, selectedBoardId, setSelectedBoardId]);
+  }, [board, selectedBoardId]);
 
-  // Handlers
   const handleAddCardOptimistic = (columnId: string) => {
     const column = columns.find((col) => col.id === columnId);
     if (!column) return;
     const tempId = `temp-${Date.now()}`;
-    const newCard = { id: tempId, content: 'New Card', order: column.cards.length, columnId };
+    const newCard: CardType = {
+      id: tempId,
+      content: 'New Card',
+      order: column.cards.length,
+      columnId,
+    };
     column.cards.push(newCard);
 
     createCard.mutate(
@@ -70,15 +74,17 @@ export function useKanbanLogic() {
       },
     );
   };
+
   const handleDeleteBoardOptimistic = (boardId: string) => {
     if (!boards) return;
-    const index = boards.findIndex((c) => c.id === boardId);
+    const index = boards.findIndex((b) => b.id === boardId);
     if (index === -1) return;
     const removed = boards[index];
     deleteBoard.mutate(boardId, {
       onError: () => boards.splice(index, 0, removed),
     });
   };
+
   const handleDeleteCardOptimistic = (columnId: string, cardId: string) => {
     const column = columns.find((col) => col.id === columnId);
     if (!column) return;
@@ -105,7 +111,12 @@ export function useKanbanLogic() {
   const handleAddColumn = () => {
     if (!board) return;
     const tempId = `temp-${Date.now()}`;
-    const newCol = { id: tempId, title: 'New Column', order: columns.length, cards: [] };
+    const newCol: ColumnType = {
+      id: tempId,
+      title: 'New Column',
+      order: board.columns.length,
+      cards: [],
+    };
     board.columns.push(newCol);
 
     createColumn.mutate(
@@ -133,7 +144,6 @@ export function useKanbanLogic() {
 
   const handleDragStart = (id: string) => {
     setActiveId(id);
-
     const allCards = columns.flatMap((col) => col.cards);
     const foundCard = allCards.find((c) => c.id === id);
     const foundColumn = columns.find((col) => col.id === id);
@@ -144,12 +154,11 @@ export function useKanbanLogic() {
 
   const handleDragOver = (id: string | null) => {
     if (!id) return setOverId(null);
-
     const allCards = columns.flatMap((col) => col.cards);
     const isCard = allCards.some((c) => c.id === id);
 
     if (isCard) {
-      const column = columns.find((col) => col.cards?.some((c) => c.id === id));
+      const column = columns.find((col) => col.cards.some((c) => c.id === id));
       setOverId(column?.id ?? null);
     } else {
       setOverId(null);
@@ -202,6 +211,7 @@ export function useKanbanLogic() {
       if (oldIndex === -1 || newIndex === -1) return;
 
       const reordered = arrayMove(columns, oldIndex, newIndex);
+
       reordered.forEach((col, index) => {
         col.order = index;
         updateColumn.mutate({

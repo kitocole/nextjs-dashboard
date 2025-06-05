@@ -1,4 +1,4 @@
-// hooks/useKanbanBoard.ts
+// hooks/useKanbanData.ts
 import { BoardType } from '@/types/kanban';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 

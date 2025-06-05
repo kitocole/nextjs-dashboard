@@ -1,21 +1,19 @@
 'use client';
 
+import { memo, useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { useState } from 'react';
 import { GripVertical, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { CardType } from '@/types/kanban';
 
-export default function Card({
-  card,
-  onDelete,
-  onUpdate = () => {},
-}: {
+type CardProps = {
   card: CardType;
-  onDelete: () => void;
+  onDelete?: () => void;
   onUpdate?: (content: string) => void;
-}) {
+};
+
+function CardComponent({ card, onDelete = () => {}, onUpdate = () => {} }: CardProps) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id: card.id,
   });
@@ -64,3 +62,16 @@ export default function Card({
     </div>
   );
 }
+
+function areEqual(prev: CardProps, next: CardProps) {
+  return (
+    prev.card.id === next.card.id &&
+    prev.card.content === next.card.content &&
+    prev.card.order === next.card.order &&
+    prev.card.columnId === next.card.columnId &&
+    prev.onDelete === next.onDelete &&
+    prev.onUpdate === next.onUpdate
+  );
+}
+
+export default memo(CardComponent, areEqual);
