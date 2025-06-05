@@ -1,121 +1,120 @@
-# SaaS Dashboard Kit
+SaaS Dashboard Kit
+A modern, customizable dashboard template for SaaS apps — built with Next.js, Tailwind CSS, Prisma, and Zustand. Features real-time drag-and-drop functionality, role-based access, data visualizations, and secure authentication.
 
-A modern, customizable, and responsive dashboard built with **Next.js**, **Tailwind CSS**, and **Prisma**. This project streamlines user management, data visualization, Kanban-style task tracking, and role-based access control for SaaS applications.
+🌟 Features
+🌗 Light & Dark Theme — Powered by next-themes
 
----
+🔐 Secure Auth — OAuth and Email login via NextAuth.js
 
-## 🌟 Features
+🧑‍💼 Role-Based Access Control — User & admin permissions
 
-- 🌗 **Light & Dark Theme** — Seamless theme switching with `next-themes`
-- 🔐 **Secure Authentication** — OAuth and email login via `NextAuth.js`
-- 🧑‍💼 **Role-Based Access Control** — Admin and user permissions
-- 🧩 **Drag-and-Drop Kanban Board** — Reorder columns and cards with instant UI feedback and optimistic updates
-- 📊 **Interactive Charts** — Data visualizations with `Recharts` and `CountUp.js`
-- 🧠 **Global State Management** — Lightweight, fast Zustand store
-- ⚙️ **Customizable Layouts** — Dashboard widget arrangement (persisted per user - WIP)
-- 🗃️ **PostgreSQL + Prisma ORM** — Scalable and type-safe database integration
-- 🐳 **Docker Support** — Simple local development with Docker Compose
+📊 Interactive Charts — Built with Recharts and CountUp.js
 
----
+🧩 Drag-and-Drop Widgets — Powered by dnd-kit
 
-## 🚀 Live Demo
+🗃️ Prisma + PostgreSQL — Scalable database integration
 
-[**View Live Demo**](https://nextjs-dashboard-kitocoles-projects.vercel.app)
+⚙️ Customizable Layouts — Persisted per user
 
----
+🐳 Docker Support — Easy local development with Docker Compose
 
-## 🛠️ Tech Stack
+🚀 Live Demo
+View Demo
 
-- **Frontend**: Next.js (App Router), React, Tailwind CSS
-- **State Management**: Zustand
-- **Data Visualization**: Recharts, CountUp.js
-- **Drag & Drop**: dnd-kit
-- **Authentication**: NextAuth.js
-- **Backend**: Prisma + PostgreSQL
-- **DevOps**: Docker Compose
+🛠️ Tech Stack
+Layer Tools
+Frontend Next.js App Router, Tailwind CSS
+State Zustand
+Auth NextAuth.js
+Backend Prisma ORM (PostgreSQL)
+Drag/Drop dnd-kit
+Charts Recharts, CountUp.js
+DevOps Docker Compose
 
----
+📦 Getting Started
 
-## 📦 Installation & Setup
+1. Clone the repository
+   bash
+   Copy
+   Edit
+   git clone https://github.com/kitocole/nextjs-dashboard.git
+   cd nextjs-dashboard
+2. Install dependencies
+   bash
+   Copy
+   Edit
+   npm install
 
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/kitocole/nextjs-dashboard.git
-cd nextjs-dashboard
-2. Install Dependencies
-bash
-Copy
-Edit
-npm install
 # or
-pnpm install
-3. Configure Environment Variables
-Create a .env file in the root directory:
 
-dotenv
+pnpm install 3. Set environment variables
+Create a .env file in the root:
+
+env
 Copy
 Edit
+
 # PostgreSQL
+
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=your_db_password
 POSTGRES_DB=dashboard
 DATABASE_URL="postgresql://postgres:your_db_password@localhost:5432/dashboard?schema=public"
 
-# NextAuth.js
+# NextAuth
+
 NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=your_generated_secret
+NEXTAUTH_SECRET=your_secret
 GITHUB_ID=your_github_client_id
 GITHUB_SECRET=your_github_client_secret
 GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
-4. Start Services & Seed DB
+GOOGLE_CLIENT_SECRET=your_google_client_secret 4. Start the database and run migrations
 bash
 Copy
 Edit
 docker-compose up -d
 npx prisma migrate dev --name init
-npx prisma db seed
-5. Run the Development Server
+npx prisma db seed 5. Run the dev server
 bash
 Copy
 Edit
 npm run dev
-# or
-pnpm dev
-Then open http://localhost:3000 in your browser.
 
-🗂️ Project Structure
+# or
+
+pnpm dev
+Then open http://localhost:3000.
+
+🗂️ Folder Structure
 php
 Copy
 Edit
-├── app/               # Next.js routes & layouts
-├── components/        # Reusable React components (Kanban, UI)
-├── lib/               # Utilities (Prisma client, helpers)
-├── prisma/            # Schema, migrations, seed scripts
-├── public/            # Static assets
-├── styles/            # Tailwind & global styles
-├── docker-compose.yml # PostgreSQL setup
-├── package.json
+├── app/ # Next.js routes and layouts
+├── components/ # Reusable UI components
+├── hooks/ # Zustand and logic hooks
+├── lib/ # Prisma and utilities
+├── prisma/ # Schema and DB seed scripts
+├── public/ # Static files
+├── styles/ # Tailwind setup
+├── docker-compose.yml # Local PostgreSQL config
 └── tailwind.config.js
 📈 Roadmap
- Role-based access control
+✅ Drag-and-drop columns/cards
 
- Profile & settings pages
+✅ Role-based access control
 
- Interactive charts
+✅ OAuth with Google/GitHub
 
- Optimistic Kanban board with column/card drag-and-drop
+✅ Custom widget layouts
 
- Persist user dashboard widget layout
+🟧 More chart types
 
- Add unit & integration tests
+🟧 Unit/integration tests
 
- Setup CI/CD pipeline
+🟧 CI/CD with GitHub Actions
 
 🤝 Contributing
-Contributions welcome! Feel free to open issues or PRs to help improve the project.
+Open issues or submit PRs to help improve this kit — all contributions welcome!
 
 📄 License
 This project is licensed under the MIT License.
-```

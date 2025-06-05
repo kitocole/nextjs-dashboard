@@ -41,9 +41,7 @@ const Column = React.memo(
       transition,
     };
 
-    const sortedCards = useMemo(() => {
-      return [...(column.cards ?? [])].sort((a, b) => a.order - b.order);
-    }, [column.cards]);
+    const sortedCards = [...(column.cards ?? [])].sort((a, b) => a.order - b.order);
 
     const handleTitleBlur = () => {
       setEditing(false);
