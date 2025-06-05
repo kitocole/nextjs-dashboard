@@ -147,8 +147,13 @@ export default function DashboardPage() {
       .catch(() => {
         // fallback if API fails
         if (typeof window !== 'undefined') {
-          setCards(JSON.parse(localStorage.getItem('dashboard-cards')!));
-          setCharts(JSON.parse(localStorage.getItem('dashboard-charts')!));
+          setCards(
+            JSON.parse(
+              localStorage.getItem('dashboard-cards') ||
+                '["revenue","users","retention","signups","subscriptions","churn"]',
+            ),
+          );
+          setCharts(JSON.parse(localStorage.getItem('dashboard-charts') || '["line","pie","bar"]'));
         }
       });
   }, []);
