@@ -153,11 +153,7 @@ export default function DashboardPage() {
                 '["revenue","users","retention","signups","subscriptions","churn"]',
             ),
           );
-          setCharts(
-            JSON.parse(
-              localStorage.getItem('dashboard-charts') || '["line","pie","bar"]',
-            ),
-          );
+          setCharts(JSON.parse(localStorage.getItem('dashboard-charts') || '["line","pie","bar"]'));
         }
       });
   }, []);
