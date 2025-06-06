@@ -1,8 +1,11 @@
 import { db } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(req: NextRequest) {
-  const boardId = req.url.split('/').pop()!;
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ boardId: string }> }
+) {
+  const { boardId } = await params;
   const board = await db.kanbanBoard.findUnique({
     where: { id: boardId },
     include: { columns: { include: { cards: true } } },
@@ -10,8 +13,11 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(board);
 }
 
-export async function PUT(req: NextRequest) {
-  const boardId = req.url.split('/').pop()!;
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ boardId: string }> }
+) {
+  const { boardId } = await params;
   const { title } = await req.json();
   const board = await db.kanbanBoard.update({
     where: { id: boardId },
@@ -20,8 +26,11 @@ export async function PUT(req: NextRequest) {
   return NextResponse.json(board);
 }
 
-export async function DELETE(req: NextRequest) {
-  const boardId = req.url.split('/').pop()!;
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ boardId: string }> }
+) {
+  const { boardId } = await params;
   await db.kanbanBoard.delete({
     where: { id: boardId },
   });

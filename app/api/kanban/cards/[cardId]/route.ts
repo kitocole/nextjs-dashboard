@@ -1,8 +1,11 @@
 import { db } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function PUT(req: NextRequest) {
-  const cardId = req.nextUrl.pathname.split('/').pop()!;
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ cardId: string }> }
+) {
+  const { cardId } = await params;
   const { content, order, columnId } = await req.json();
 
   const card = await db.kanbanCard.update({
@@ -13,8 +16,11 @@ export async function PUT(req: NextRequest) {
   return NextResponse.json(card);
 }
 
-export async function DELETE(req: NextRequest) {
-  const cardId = req.nextUrl.pathname.split('/').pop()!;
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ cardId: string }> }
+) {
+  const { cardId } = await params;
 
   await db.kanbanCard.delete({
     where: { id: cardId },
