@@ -11,14 +11,17 @@ jobs:
     name: Checkout & Install
     runs-on: ubuntu-latest
     steps:
+      # Checkout repo contents
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Set Node.js version (used by npm)
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
+      # ✅ Cache node_modules to speed up npm install
       - name: Cache node_modules
         uses: actions/cache@v3
         with:
@@ -27,6 +30,25 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
+      # ✅ Cache Prisma generated client (node_modules/.prisma)
+      - name: Cache Prisma client
+        uses: actions/cache@v3
+        with:
+          path: node_modules/.prisma
+          key: ${{ runner.os }}-prisma-${{ hashFiles('prisma/schema.prisma') }}
+          restore-keys: |
+            ${{ runner.os }}-prisma-
+
+      # ✅ Cache Next.js build cache (optional for now, but safe to add)
+      - name: Cache Next.js build cache
+        uses: actions/cache@v3
+        with:
+          path: .next/cache
+          key: ${{ runner.os }}-next-${{ hashFiles('**/*.[jt]s', '**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-next-
+
+      # Run npm install (will use node_modules cache if available)
       - name: Install dependencies
         run: npm install
 
@@ -39,10 +61,25 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
+
+      # Reuse node_modules cache
       - uses: actions/cache@v3
         with:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+      # Reuse Prisma client cache
+      - uses: actions/cache@v3
+        with:
+          path: node_modules/.prisma
+          key: ${{ runner.os }}-prisma-${{ hashFiles('prisma/schema.prisma') }}
+
+      # Reuse Next.js cache (needed if you're building)
+      - uses: actions/cache@v3
+        with:
+          path: .next/cache
+          key: ${{ runner.os }}-next-${{ hashFiles('**/*.[jt]s', '**/*.tsx') }}
+
       - run: npm install
       - run: npm run typecheck
 
@@ -55,10 +92,23 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
+
+      # Reuse caches as in typecheck
       - uses: actions/cache@v3
         with:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+      - uses: actions/cache@v3
+        with:
+          path: node_modules/.prisma
+          key: ${{ runner.os }}-prisma-${{ hashFiles('prisma/schema.prisma') }}
+
+      - uses: actions/cache@v3
+        with:
+          path: .next/cache
+          key: ${{ runner.os }}-next-${{ hashFiles('**/*.[jt]s', '**/*.tsx') }}
+
       - run: npm install
       - run: npm run lint
 
@@ -71,9 +121,56 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
+
       - uses: actions/cache@v3
         with:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+      - uses: actions/cache@v3
+        with:
+          path: node_modules/.prisma
+          key: ${{ runner.os }}-prisma-${{ hashFiles('prisma/schema.prisma') }}
+
+      - uses: actions/cache@v3
+        with:
+          path: .next/cache
+          key: ${{ runner.os }}-next-${{ hashFiles('**/*.[jt]s', '**/*.tsx') }}
+
       - run: npm install
       - run: npm run format
+  build:
+    name: Build App
+    runs-on: ubuntu-latest
+    needs: checkout
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      # Reuse node_modules cache
+      - uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+      # Reuse Prisma client cache
+      - uses: actions/cache@v3
+        with:
+          path: node_modules/.prisma
+          key: ${{ runner.os }}-prisma-${{ hashFiles('prisma/schema.prisma') }}
+
+      # Reuse Next.js build cache
+      - uses: actions/cache@v3
+        with:
+          path: .next/cache
+          key: ${{ runner.os }}-next-${{ hashFiles('**/*.[jt]s', '**/*.tsx') }}
+
+      - run: npm install
+
+      # Generate Prisma client
+      - run: npx prisma generate
+
+      # Run Next.js production build
+      - run: npm run build
