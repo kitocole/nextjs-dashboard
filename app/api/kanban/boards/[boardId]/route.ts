@@ -1,10 +1,7 @@
 import { db } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ boardId: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ boardId: string }> }) {
   const { boardId } = await params;
   const board = await db.kanbanBoard.findUnique({
     where: { id: boardId },
@@ -13,10 +10,7 @@ export async function GET(
   return NextResponse.json(board);
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ boardId: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ boardId: string }> }) {
   const { boardId } = await params;
   const { title } = await req.json();
   const board = await db.kanbanBoard.update({
@@ -28,7 +22,7 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ boardId: string }> }
+  { params }: { params: Promise<{ boardId: string }> },
 ) {
   const { boardId } = await params;
   await db.kanbanBoard.delete({

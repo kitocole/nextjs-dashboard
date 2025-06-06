@@ -1,10 +1,7 @@
 import { db } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ cardId: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ cardId: string }> }) {
   const { cardId } = await params;
   const { content, order, columnId } = await req.json();
 
@@ -18,7 +15,7 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ cardId: string }> }
+  { params }: { params: Promise<{ cardId: string }> },
 ) {
   const { cardId } = await params;
 
