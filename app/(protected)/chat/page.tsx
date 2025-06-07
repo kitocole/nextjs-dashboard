@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { apolloClient } from '@/lib/apollo';
 import { Input } from '@/components/ui/input';
@@ -74,6 +74,7 @@ export default function ChatPage() {
   const [message, setMessage] = useState('');
   const [search, setSearch] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const { data: convoData, refetch: refetchConvos } = useQuery(CONVERSATIONS, {
     client: apolloClient,
@@ -115,6 +116,10 @@ export default function ChatPage() {
     if (!selected) setMessages([]);
   }, [selected]);
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+  }, [messages, selected]);
+
   const handleSend = async () => {
     if (!message.trim() || !selected) return;
     const { data } = await send({
@@ -152,51 +157,55 @@ export default function ChatPage() {
   }, [selectedUser]);
 
   return (
-    <div className="flex h-full bg-white dark:bg-gray-900">
-      <aside className="w-64 space-y-2 border-r p-4">
+    <div className="flex h-[calc(93vh)] overflow-hidden bg-white dark:bg-gray-900">
+      <aside className="flex h-full w-64 flex-col border-r p-4">
         <Input
           placeholder="Search users"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="mb-2"
         />
-        {search
-          ? searchResults.map((u: User) => (
-              <div
-                key={u.id}
-                className={`cursor-pointer rounded-md p-2 hover:bg-gray-100 dark:hover:bg-gray-800 ${
-                  selected === u.id ? 'bg-blue-500 text-white' : ''
-                }`}
-                onClick={() => {
-                  setSelected(u.id);
-                  setSearch('');
-                }}
-              >
-                {u.firstName} {u.lastName}
-              </div>
-            ))
-          : conversations.map((u: User) => (
-              <div
-                key={u.id}
-                className={`flex items-center justify-between rounded-md p-2 hover:bg-gray-100 dark:hover:bg-gray-800 ${
-                  selected === u.id ? 'bg-blue-500 text-white' : ''
-                }`}
-                onClick={() => setSelected(u.id)}
-              >
-                <span>
-                  {u.firstName} {u.lastName}
-                </span>
-                <button
-                  className="ml-2 text-xs text-red-500"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete(u.id);
+        <div className="flex-1 space-y-2 overflow-y-auto">
+          {search
+            ? searchResults.map((u: User) => (
+                <div
+                  key={u.id}
+                  className={`cursor-pointer rounded-md p-2 hover:bg-gray-100 dark:hover:bg-gray-800 ${
+                    selected === u.id ? 'bg-blue-500 text-white' : ''
+                  }`}
+                  onClick={() => {
+                    setSelected(u.id);
+                    setSearch('');
                   }}
                 >
-                  delete
-                </button>
-              </div>
-            ))}
+                  {u.firstName} {u.lastName}
+                </div>
+              ))
+            : conversations.map((u: User) => (
+                <div
+                  key={u.id}
+                  className={`flex items-center justify-between rounded-md p-2 hover:bg-gray-100 dark:hover:bg-gray-800 ${
+                    selected === u.id ? 'bg-blue-500 text-white' : ''
+                  }`}
+                  onClick={() => setSelected(u.id)}
+                >
+                  <span>
+                    {u.firstName} {u.lastName}
+                  </span>
+                  <button
+                    className="ml-2 text-xs text-red-500"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (confirm('Delete this conversation?')) {
+                        handleDelete(u.id);
+                      }
+                    }}
+                  >
+                    X
+                  </button>
+                </div>
+              ))}
+        </div>
       </aside>
       <div className="flex flex-1 flex-col">
         <div className="flex h-12 items-center border-b p-4 text-lg font-semibold">
@@ -208,9 +217,12 @@ export default function ChatPage() {
             <span>Select a conversation</span>
           )}
         </div>
-        <div className="flex-1 space-y-2 overflow-y-auto border p-4">
+        <div className="flex flex-1 flex-col justify-end space-y-2 overflow-y-auto border p-4">
           {messages.map((m: Message) => (
-            <div key={m.id} className={`flex ${m.senderId === session?.user?.id ? 'justify-end' : 'justify-start'}`}>
+            <div
+              key={m.id}
+              className={`flex ${m.senderId === session?.user?.id ? 'justify-end' : 'justify-start'}`}
+            >
               <div
                 className={`max-w-[70%] rounded-lg p-2 text-sm ${
                   m.senderId === session?.user?.id
@@ -222,6 +234,7 @@ export default function ChatPage() {
               </div>
             </div>
           ))}
+          <div ref={messagesEndRef} />
         </div>
         {selected && (
           <div className="flex items-center gap-2 border-t p-4">
