@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { apolloClient } from '@/lib/apollo';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useSession } from 'next-auth/react';
 
@@ -160,7 +161,7 @@ export default function ChatPage() {
   }, [selectedUser]);
 
   return (
-    <div className="flex h-[calc(93vh)] overflow-hidden border-2 bg-white pt-5 dark:bg-gray-900">
+    <div className="flex h-[calc(93vh)] border-2 bg-white pt-5 dark:bg-gray-900">
       <aside className="flex h-full w-64 flex-col border-r p-4">
         <Input
           placeholder="Search users"
@@ -241,13 +242,17 @@ export default function ChatPage() {
         </div>
         {selected && (
           <div className="flex items-center gap-2 border-t p-4">
-            <Input
-              className="flex-1"
+            <Textarea
+              className="flex-1 resize-none"
+              rows={1}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Type a message"
               onKeyDown={(e) => {
-                if (e.key === 'Enter') handleSend();
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSend();
+                }
               }}
             />
             <Button onClick={handleSend}>Send</Button>
