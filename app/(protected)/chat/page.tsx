@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { apolloClient } from '@/lib/apollo';
 import { Input } from '@/components/ui/input';
@@ -74,6 +74,7 @@ export default function ChatPage() {
   const [message, setMessage] = useState('');
   const [search, setSearch] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const { data: convoData, refetch: refetchConvos } = useQuery(CONVERSATIONS, {
     client: apolloClient,
@@ -112,6 +113,10 @@ export default function ChatPage() {
   useEffect(() => {
     if (!selected) setMessages([]);
   }, [selected]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+  }, [messages, selected]);
 
   const handleSend = async () => {
     if (!message.trim() || !selected) return;
@@ -184,10 +189,12 @@ export default function ChatPage() {
                   className="ml-2 text-xs text-red-500"
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleDelete(u.id);
+                    if (confirm('Delete this conversation?')) {
+                      handleDelete(u.id);
+                    }
                   }}
                 >
-                  delete
+                  X
                 </button>
               </div>
             ))}
@@ -202,7 +209,7 @@ export default function ChatPage() {
             <span>Select a conversation</span>
           )}
         </div>
-        <div className="flex-1 space-y-2 overflow-y-auto border p-4">
+        <div className="flex flex-1 flex-col justify-end space-y-2 overflow-y-auto border p-4">
           {messages.map((m: Message) => (
             <div key={m.id} className={`flex ${m.senderId === session?.user?.id ? 'justify-end' : 'justify-start'}`}>
               <div
@@ -216,6 +223,7 @@ export default function ChatPage() {
               </div>
             </div>
           ))}
+          <div ref={messagesEndRef} />
         </div>
         {selected && (
           <div className="flex items-center gap-2 border-t p-4">
