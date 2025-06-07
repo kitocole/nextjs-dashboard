@@ -25,11 +25,11 @@ model User {
   updatedAt       DateTime       @default(now()) @updatedAt
 
   // NextAuth relations:
-  accounts    Account[]
-  sessions    Session[]
-  kanbanBoard KanbanBoard[]
-  sentMessages     Message[]       @relation("SentMessages")
-  receivedMessages Message[]       @relation("ReceivedMessages")
+  accounts         Account[]
+  sessions         Session[]
+  kanbanBoard      KanbanBoard[]
+  sentMessages     Message[]     @relation("SentMessages")
+  receivedMessages Message[]     @relation("ReceivedMessages")
 }
 
 model Account {
