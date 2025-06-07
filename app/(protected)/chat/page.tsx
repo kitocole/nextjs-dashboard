@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, UIEvent } from 'react';
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { apolloClient } from '@/lib/apollo';
 import { Input } from '@/components/ui/input';
@@ -75,6 +75,8 @@ export default function ChatPage() {
   const [search, setSearch] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const messagesContainerRef = useRef<HTMLDivElement | null>(null);
+  const [isNearBottom, setIsNearBottom] = useState(true);
 
   const { data: convoData, refetch: refetchConvos } = useQuery(CONVERSATIONS, {
     client: apolloClient,
@@ -117,8 +119,10 @@ export default function ChatPage() {
   }, [selected]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
-  }, [messages, selected]);
+    if (isNearBottom) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+    }
+  }, [messages, selected, isNearBottom]);
 
   const handleSend = async () => {
     if (!message.trim() || !selected) return;
@@ -127,9 +131,7 @@ export default function ChatPage() {
     });
     if (data?.sendMessage) {
       setMessages((prev) => {
-        return prev.some((m) => m.id === data.sendMessage.id)
-          ? prev
-          : [...prev, data.sendMessage];
+        return prev.some((m) => m.id === data.sendMessage.id) ? prev : [...prev, data.sendMessage];
       });
     }
     setMessage('');
@@ -155,6 +157,12 @@ export default function ChatPage() {
       document.title = 'Chat';
     }
   }, [selectedUser]);
+
+  const handleScroll = (e: UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    const isBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 50;
+    setIsNearBottom(isBottom);
+  };
 
   return (
     <div className="flex h-[calc(93vh)] overflow-hidden border-2 bg-white pt-5 dark:bg-gray-900">
@@ -217,7 +225,11 @@ export default function ChatPage() {
             <span>Select a conversation</span>
           )}
         </div>
-        <div className="flex flex-1 flex-col justify-end space-y-2 overflow-y-auto border p-4">
+        <div
+          className="flex-1 space-y-2 overflow-y-auto border p-4"
+          ref={messagesContainerRef}
+          onScroll={handleScroll}
+        >
           {messages.map((m: Message) => (
             <div
               key={m.id}
