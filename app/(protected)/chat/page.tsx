@@ -99,7 +99,9 @@ export default function ChatPage() {
       const msg: Message = JSON.parse(e.data);
       refetchConvos();
       if (msg.senderId === selected || msg.recipientId === selected) {
-        setMessages((prev) => [...prev, msg]);
+        setMessages((prev) => {
+          return prev.some((m) => m.id === msg.id) ? prev : [...prev, msg];
+        });
       }
     };
     return () => es.close();
@@ -119,7 +121,11 @@ export default function ChatPage() {
       variables: { recipientId: selected, content: message.trim() },
     });
     if (data?.sendMessage) {
-      setMessages((prev) => [...prev, data.sendMessage]);
+      setMessages((prev) => {
+        return prev.some((m) => m.id === data.sendMessage.id)
+          ? prev
+          : [...prev, data.sendMessage];
+      });
     }
     setMessage('');
   };
