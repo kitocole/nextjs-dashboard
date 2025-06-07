@@ -83,6 +83,8 @@ export default function ChatPage() {
     variables: { withUserId: selected },
     skip: !selected,
     client: apolloClient,
+    // Poll every second so new messages show up even if the SSE misses them
+    pollInterval: 1000,
   });
   const { data: searchData } = useQuery(SEARCH_USERS, {
     variables: { term: search },
@@ -100,13 +102,14 @@ export default function ChatPage() {
       const msg: Message = JSON.parse(e.data);
       refetchConvos();
       if (msg.senderId === selected || msg.recipientId === selected) {
-        setMessages((prev) => {
-          return prev.some((m) => m.id === msg.id) ? prev : [...prev, msg];
-        });
+        setMessages((prev) =>
+          prev.some((m) => m.id === msg.id) ? prev : [...prev, msg],
+        );
       }
     };
     return () => es.close();
-  }, [session?.user?.id, selected, refetchConvos]);
+    // Keep this effect stable so we don't reopen the stream unnecessarily
+  }, [session?.user?.id, refetchConvos]);
 
   useEffect(() => {
     if (msgData?.messages) setMessages(msgData.messages);
