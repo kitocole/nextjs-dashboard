@@ -236,7 +236,7 @@ export default function ChatPage() {
               className={`flex ${m.senderId === session?.user?.id ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[70%] rounded-lg p-2 text-sm ${
+                className={`max-w-[70%] rounded-lg p-2 text-sm whitespace-pre-line ${
                   m.senderId === session?.user?.id
                     ? 'bg-blue-500 text-white'
                     : 'bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-gray-100'
