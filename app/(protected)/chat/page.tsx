@@ -137,6 +137,14 @@ export default function ChatPage() {
     searchResults.find((u: User) => u.id === selected) ??
     null;
 
+  useEffect(() => {
+    if (selectedUser) {
+      document.title = `${selectedUser.firstName} ${selectedUser.lastName} - Chat`;
+    } else {
+      document.title = 'Chat';
+    }
+  }, [selectedUser]);
+
   return (
     <div className="flex h-full bg-white dark:bg-gray-900">
       <aside className="w-64 space-y-2 border-r p-4">
@@ -185,26 +193,27 @@ export default function ChatPage() {
             ))}
       </aside>
       <div className="flex flex-1 flex-col">
-        <div className="border-b p-4 text-sm font-medium">
+        <div className="flex h-12 items-center border-b p-4 text-lg font-semibold">
           {selectedUser ? (
-            <span>
-              Chatting with {selectedUser.firstName} {selectedUser.lastName}
-            </span>
+            <h2>
+              {selectedUser.firstName} {selectedUser.lastName}
+            </h2>
           ) : (
             <span>Select a conversation</span>
           )}
         </div>
-        <div className="flex-1 space-y-2 overflow-y-auto p-4">
+        <div className="flex-1 space-y-2 overflow-y-auto border p-4">
           {messages.map((m: Message) => (
-            <div
-              key={m.id}
-              className={`max-w-[70%] rounded-lg p-2 text-sm ${
-                m.senderId === session?.user?.id
-                  ? 'self-end bg-blue-500 text-white'
-                  : 'bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-gray-100'
-              }`}
-            >
-              {m.content}
+            <div key={m.id} className={`flex ${m.senderId === session?.user?.id ? 'justify-end' : 'justify-start'}`}>
+              <div
+                className={`max-w-[70%] rounded-lg p-2 text-sm ${
+                  m.senderId === session?.user?.id
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-gray-100'
+                }`}
+              >
+                {m.content}
+              </div>
             </div>
           ))}
         </div>
