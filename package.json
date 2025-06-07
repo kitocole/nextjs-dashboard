@@ -7,7 +7,7 @@
     "dev": "prisma generate && next dev",
     "build": "prisma generate --no-engine && next build",
     "start": "next start",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "prisma generate --no-engine && tsc --noEmit",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
     "format": "prettier --check .",
