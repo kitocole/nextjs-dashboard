@@ -28,6 +28,8 @@ model User {
   accounts    Account[]
   sessions    Session[]
   kanbanBoard KanbanBoard[]
+  sentMessages     Message[]       @relation("SentMessages")
+  receivedMessages Message[]       @relation("ReceivedMessages")
 }
 
 model Account {
@@ -113,4 +115,19 @@ model KanbanCard {
   columnId  String
   createdAt DateTime     @default(now())
   updatedAt DateTime     @default(now()) @updatedAt
+}
+
+model Message {
+  id                  String   @id @default(cuid())
+  sender              User     @relation("SentMessages", fields: [senderId], references: [id])
+  senderId            String
+  recipient           User     @relation("ReceivedMessages", fields: [recipientId], references: [id])
+  recipientId         String
+  content             String
+  deletedForSender    Boolean  @default(false)
+  deletedForRecipient Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @default(now()) @updatedAt
+
+  @@index([senderId, recipientId])
 }
