@@ -113,7 +113,7 @@ const resolvers = {
 
 const schema = createSchema({ typeDefs, resolvers });
 
-const yoga = createYoga({
+const { handleRequest } = createYoga({
   schema,
   graphqlEndpoint: '/api/graphql',
   fetchAPI: { Request, Response, Headers },
@@ -124,5 +124,8 @@ const yoga = createYoga({
   },
 });
 
-export const GET = yoga;
-export const POST = yoga;
+async function handler(request: Request) {
+  return handleRequest(request, {});
+}
+
+export { handler as GET, handler as POST };
