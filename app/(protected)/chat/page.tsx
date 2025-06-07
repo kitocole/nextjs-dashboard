@@ -76,6 +76,8 @@ export default function ChatPage() {
   const [search, setSearch] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const messagesContainerRef = useRef<HTMLDivElement | null>(null);
+  const isAtBottomRef = useRef(true);
 
   const { data: convoData, refetch: refetchConvos } = useQuery(CONVERSATIONS, {
     client: apolloClient,
@@ -120,9 +122,17 @@ export default function ChatPage() {
     if (!selected) setMessages([]);
   }, [selected]);
 
+  // Scroll to the newest message when the user hasn't scrolled up
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
-  }, [messages, selected]);
+    if (isAtBottomRef.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+    }
+  }, [messages.length, selected]);
+
+  // Reset scroll state when switching conversations
+  useEffect(() => {
+    isAtBottomRef.current = true;
+  }, [selected]);
 
   const handleSend = async () => {
     if (!message.trim() || !selected) return;
@@ -221,7 +231,15 @@ export default function ChatPage() {
             <span>Select a conversation</span>
           )}
         </div>
-        <div className="flex flex-1 flex-col justify-end space-y-2 overflow-y-auto border p-4">
+        <div
+          className="flex flex-1 flex-col justify-end space-y-2 overflow-y-auto border p-4"
+          ref={messagesContainerRef}
+          onScroll={(e) => {
+            const el = e.currentTarget;
+            isAtBottomRef.current =
+              el.scrollTop + el.clientHeight >= el.scrollHeight - 10;
+          }}
+        >
           {messages.map((m: Message) => (
             <div
               key={m.id}
