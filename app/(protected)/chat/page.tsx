@@ -115,12 +115,9 @@ export default function ChatPage() {
 
   const handleSend = async () => {
     if (!message.trim() || !selected) return;
-    const { data } = await send({
+    await send({
       variables: { recipientId: selected, content: message.trim() },
     });
-    if (data?.sendMessage) {
-      setMessages((prev) => [...prev, data.sendMessage]);
-    }
     setMessage('');
   };
 
