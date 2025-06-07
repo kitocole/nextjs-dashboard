@@ -73,11 +73,12 @@ export default function ChatPage() {
   const [selected, setSelected] = useState<string | null>(null);
   const [message, setMessage] = useState('');
   const [search, setSearch] = useState('');
+  const [messages, setMessages] = useState<Message[]>([]);
 
   const { data: convoData, refetch: refetchConvos } = useQuery(CONVERSATIONS, {
     client: apolloClient,
   });
-  const { data: msgData, refetch: refetchMsgs } = useQuery(MESSAGES, {
+  const { data: msgData } = useQuery(MESSAGES, {
     variables: { withUserId: selected },
     skip: !selected,
     client: apolloClient,
@@ -94,18 +95,33 @@ export default function ChatPage() {
   useEffect(() => {
     if (!session?.user?.id) return;
     const es = new EventSource(`/api/chat/stream?userId=${session.user.id}`);
-    es.onmessage = () => {
+    es.onmessage = (e) => {
+      const msg: Message = JSON.parse(e.data);
       refetchConvos();
-      if (selected) refetchMsgs();
+      if (msg.senderId === selected || msg.recipientId === selected) {
+        setMessages((prev) => [...prev, msg]);
+      }
     };
     return () => es.close();
-  }, [session?.user?.id, selected, refetchConvos, refetchMsgs]);
+  }, [session?.user?.id, selected, refetchConvos]);
+
+  useEffect(() => {
+    if (msgData?.messages) setMessages(msgData.messages);
+  }, [msgData]);
+
+  useEffect(() => {
+    if (!selected) setMessages([]);
+  }, [selected]);
 
   const handleSend = async () => {
     if (!message.trim() || !selected) return;
-    await send({ variables: { recipientId: selected, content: message.trim() } });
+    const { data } = await send({
+      variables: { recipientId: selected, content: message.trim() },
+    });
+    if (data?.sendMessage) {
+      setMessages((prev) => [...prev, data.sendMessage]);
+    }
     setMessage('');
-    refetchMsgs();
   };
 
   const handleDelete = async (id: string) => {
@@ -115,8 +131,11 @@ export default function ChatPage() {
   };
 
   const conversations = convoData?.conversations ?? [];
-  const messages = msgData?.messages ?? [];
   const searchResults = searchData?.searchUsers ?? [];
+  const selectedUser =
+    conversations.find((u: User) => u.id === selected) ??
+    searchResults.find((u: User) => u.id === selected) ??
+    null;
 
   return (
     <div className="flex h-full bg-white dark:bg-gray-900">
@@ -166,6 +185,15 @@ export default function ChatPage() {
             ))}
       </aside>
       <div className="flex flex-1 flex-col">
+        <div className="border-b p-4 text-sm font-medium">
+          {selectedUser ? (
+            <span>
+              Chatting with {selectedUser.firstName} {selectedUser.lastName}
+            </span>
+          ) : (
+            <span>Select a conversation</span>
+          )}
+        </div>
         <div className="flex-1 space-y-2 overflow-y-auto p-4">
           {messages.map((m: Message) => (
             <div
