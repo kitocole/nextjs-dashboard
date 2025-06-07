@@ -19,12 +19,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <Analytics />
-      <body className="flex h-full flex-col" suppressHydrationWarning>
+      <body className="flex flex-col" suppressHydrationWarning>
         <Providers>
           <Navbar />
-          <div className="flex h-[calc(90vh)] flex-1">
+          <div className="flex flex-1">
             <Sidebar />
-            <main className="mt-5 flex-1 overflow-y-auto">{children}</main>
+            <main className="flex-1 overflow-y-auto">{children}</main>
           </div>
         </Providers>
       </body>
