@@ -151,53 +151,55 @@ export default function ChatPage() {
   }, [selectedUser]);
 
   return (
-    <div className="flex h-full bg-white dark:bg-gray-900">
-      <aside className="w-64 space-y-2 border-r p-4">
+    <div className="flex h-[calc(100vh-3.5rem)] bg-white dark:bg-gray-900">
+      <aside className="flex h-full w-64 flex-col border-r p-4">
         <Input
           placeholder="Search users"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="mb-2"
         />
-        {search
-          ? searchResults.map((u: User) => (
-              <div
-                key={u.id}
-                className={`cursor-pointer rounded-md p-2 hover:bg-gray-100 dark:hover:bg-gray-800 ${
-                  selected === u.id ? 'bg-blue-500 text-white' : ''
-                }`}
-                onClick={() => {
-                  setSelected(u.id);
-                  setSearch('');
-                }}
-              >
-                {u.firstName} {u.lastName}
-              </div>
-            ))
-          : conversations.map((u: User) => (
-              <div
-                key={u.id}
-                className={`flex items-center justify-between rounded-md p-2 hover:bg-gray-100 dark:hover:bg-gray-800 ${
-                  selected === u.id ? 'bg-blue-500 text-white' : ''
-                }`}
-                onClick={() => setSelected(u.id)}
-              >
-                <span>
-                  {u.firstName} {u.lastName}
-                </span>
-                <button
-                  className="ml-2 text-xs text-red-500"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (confirm('Delete this conversation?')) {
-                      handleDelete(u.id);
-                    }
+        <div className="flex-1 space-y-2 overflow-y-auto">
+          {search
+            ? searchResults.map((u: User) => (
+                <div
+                  key={u.id}
+                  className={`cursor-pointer rounded-md p-2 hover:bg-gray-100 dark:hover:bg-gray-800 ${
+                    selected === u.id ? 'bg-blue-500 text-white' : ''
+                  }`}
+                  onClick={() => {
+                    setSelected(u.id);
+                    setSearch('');
                   }}
                 >
-                  X
-                </button>
-              </div>
-            ))}
+                  {u.firstName} {u.lastName}
+                </div>
+              ))
+            : conversations.map((u: User) => (
+                <div
+                  key={u.id}
+                  className={`flex items-center justify-between rounded-md p-2 hover:bg-gray-100 dark:hover:bg-gray-800 ${
+                    selected === u.id ? 'bg-blue-500 text-white' : ''
+                  }`}
+                  onClick={() => setSelected(u.id)}
+                >
+                  <span>
+                    {u.firstName} {u.lastName}
+                  </span>
+                  <button
+                    className="ml-2 text-xs text-red-500"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (confirm('Delete this conversation?')) {
+                        handleDelete(u.id);
+                      }
+                    }}
+                  >
+                    X
+                  </button>
+                </div>
+              ))}
+        </div>
       </aside>
       <div className="flex flex-1 flex-col">
         <div className="flex h-12 items-center border-b p-4 text-lg font-semibold">
