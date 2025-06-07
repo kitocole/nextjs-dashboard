@@ -1,4 +1,5 @@
 'use client';
+
 import { Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { useSidebarStore } from './SidebarStore';
@@ -12,6 +13,7 @@ import {
   Settings as SettingsIcon,
   Users as UsersIcon,
   KanbanSquare,
+  MessageCircle,
 } from 'lucide-react';
 
 export function Sidebar() {
@@ -21,14 +23,16 @@ export function Sidebar() {
   const { isOpen, toggleDrawer } = useSidebarStore();
 
   const base = 'px-3 rounded-md transition-colors flex items-center gap-2 py-4';
-  const active = 'bg-blue-500 text-white';
-  const inactive = 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800';
+  const active = 'bg-sidebar-primary text-sidebar-primary-foreground';
+  const inactive =
+    'text-sidebar-foreground hover:bg-sidebar hover:text-foreground dark:hover:bg-sidebar dark:hover:text-foreground';
   const linkClasses = (href: string) => `${base} ${pathname === href ? active : inactive}`;
 
   const links = isLoggedIn
     ? [
         { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
         { href: '/kanban', icon: KanbanSquare, label: 'Kanban ' },
+        { href: '/chat', icon: MessageCircle, label: 'Chat' },
         { href: '/profile', icon: UserIcon, label: 'Profile' },
         { href: '/users', icon: UsersIcon, label: 'Users' },
         { href: '/settings', icon: SettingsIcon, label: 'Settings' },
@@ -36,13 +40,23 @@ export function Sidebar() {
     : [{ href: '/login', icon: LogIn, label: 'Login' }];
 
   return (
-    <>
-      {/* Drawer Sidebar for all screen sizes */}
-      <Transition show={isOpen} as={Fragment}>
-        <Dialog as="div" className="fixed inset-0 z-40" open={isOpen} onClose={toggleDrawer}>
-          <div className="fixed inset-0 bg-black/50" aria-hidden="true" />
-          <div className="fixed inset-y-0 left-0 w-64 bg-white p-4 dark:bg-gray-900">
-            <nav className="flex flex-col gap-2 pt-15">
+    <Transition show={isOpen} as={Fragment}>
+      <Dialog as="div" className="fixed inset-0 z-40" onClose={toggleDrawer}>
+        <div className="fixed inset-0 bg-black/50" aria-hidden="true" />
+
+        <Transition
+          appear
+          show={isOpen}
+          as={Fragment}
+          enter="transition duration-300 ease-out"
+          enterFrom="-translate-x-full pointer-events-none"
+          enterTo="translate-x-0"
+          leave="transition duration-200 ease-in"
+          leaveFrom="translate-x-0 pointer-events-none"
+          leaveTo="-translate-x-full"
+        >
+          <div className="bg-sidebar dark:bg-sidebar fixed inset-y-0 left-0 w-64 p-4 pt-6">
+            <nav className="flex flex-col gap-2 pt-12">
               {links.map((link) => (
                 <Link
                   key={link.href}
@@ -56,8 +70,8 @@ export function Sidebar() {
               ))}
             </nav>
           </div>
-        </Dialog>
-      </Transition>
-    </>
+        </Transition>
+      </Dialog>
+    </Transition>
   );
 }
