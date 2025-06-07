@@ -151,7 +151,7 @@ export default function ChatPage() {
   }, [selectedUser]);
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden bg-white dark:bg-gray-900">
+    <div className="flex h-[calc(94vh)] overflow-hidden bg-white dark:bg-gray-900">
       <aside className="flex h-full w-64 flex-col border-r p-4">
         <Input
           placeholder="Search users"
@@ -211,9 +211,12 @@ export default function ChatPage() {
             <span>Select a conversation</span>
           )}
         </div>
-        <div className="flex flex-1 flex-col justify-end space-y-2 overflow-y-auto border p-4 pb-6">
+        <div className="flex flex-1 flex-col justify-end space-y-2 overflow-y-auto border p-4">
           {messages.map((m: Message) => (
-            <div key={m.id} className={`flex ${m.senderId === session?.user?.id ? 'justify-end' : 'justify-start'}`}>
+            <div
+              key={m.id}
+              className={`flex ${m.senderId === session?.user?.id ? 'justify-end' : 'justify-start'}`}
+            >
               <div
                 className={`max-w-[70%] rounded-lg p-2 text-sm ${
                   m.senderId === session?.user?.id
