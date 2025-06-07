@@ -151,7 +151,7 @@ export default function ChatPage() {
   }, [selectedUser]);
 
   return (
-    <div className="flex h-[calc(94vh)] overflow-hidden bg-white dark:bg-gray-900">
+    <div className="flex h-[calc(93vh)] overflow-hidden bg-white dark:bg-gray-900">
       <aside className="flex h-full w-64 flex-col border-r p-4">
         <Input
           placeholder="Search users"
