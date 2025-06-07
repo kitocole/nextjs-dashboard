@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, UIEvent } from 'react';
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { apolloClient } from '@/lib/apollo';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useSession } from 'next-auth/react';
 
@@ -85,6 +86,8 @@ export default function ChatPage() {
     variables: { withUserId: selected },
     skip: !selected,
     client: apolloClient,
+    // Poll every second so new messages show up even if the SSE misses them
+    pollInterval: 1000,
   });
   const { data: searchData } = useQuery(SEARCH_USERS, {
     variables: { term: search },
@@ -102,13 +105,14 @@ export default function ChatPage() {
       const msg: Message = JSON.parse(e.data);
       refetchConvos();
       if (msg.senderId === selected || msg.recipientId === selected) {
-        setMessages((prev) => {
-          return prev.some((m) => m.id === msg.id) ? prev : [...prev, msg];
-        });
+        setMessages((prev) =>
+          prev.some((m) => m.id === msg.id) ? prev : [...prev, msg],
+        );
       }
     };
     return () => es.close();
-  }, [session?.user?.id, selected, refetchConvos]);
+    // Keep this effect stable so we don't reopen the stream unnecessarily
+  }, [session?.user?.id, refetchConvos]);
 
   useEffect(() => {
     if (msgData?.messages) setMessages(msgData.messages);
@@ -215,7 +219,7 @@ export default function ChatPage() {
               ))}
         </div>
       </aside>
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col overflow-hidden">
         <div className="flex h-12 items-center border-b p-4 text-lg font-semibold">
           {selectedUser ? (
             <h2>
@@ -236,7 +240,7 @@ export default function ChatPage() {
               className={`flex ${m.senderId === session?.user?.id ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[70%] rounded-lg p-2 text-sm ${
+                className={`max-w-[70%] whitespace-pre-wrap rounded-lg p-2 text-sm ${
                   m.senderId === session?.user?.id
                     ? 'bg-blue-500 text-white'
                     : 'bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-gray-100'
@@ -250,13 +254,17 @@ export default function ChatPage() {
         </div>
         {selected && (
           <div className="flex items-center gap-2 border-t p-4">
-            <Input
-              className="flex-1"
+            <Textarea
+              className="flex-1 resize-none"
+              rows={1}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Type a message"
               onKeyDown={(e) => {
-                if (e.key === 'Enter') handleSend();
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSend();
+                }
               }}
             />
             <Button onClick={handleSend}>Send</Button>
