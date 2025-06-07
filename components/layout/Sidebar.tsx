@@ -12,6 +12,7 @@ import {
   Settings as SettingsIcon,
   Users as UsersIcon,
   KanbanSquare,
+  MessageCircle,
 } from 'lucide-react';
 
 export function Sidebar() {
@@ -29,6 +30,7 @@ export function Sidebar() {
     ? [
         { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
         { href: '/kanban', icon: KanbanSquare, label: 'Kanban ' },
+        { href: '/chat', icon: MessageCircle, label: 'Chat' },
         { href: '/profile', icon: UserIcon, label: 'Profile' },
         { href: '/users', icon: UsersIcon, label: 'Users' },
         { href: '/settings', icon: SettingsIcon, label: 'Settings' },
