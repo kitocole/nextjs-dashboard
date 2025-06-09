@@ -9,11 +9,17 @@ import { CardType } from '@/types/kanban';
 
 type CardProps = {
   card: CardType;
+  isCardDragging?: boolean;
   onDelete?: () => void;
   onUpdate?: (content: string) => void;
 };
 
-function CardComponent({ card, onDelete = () => {}, onUpdate = () => {} }: CardProps) {
+function CardComponent({
+  card,
+  isCardDragging = false,
+  onDelete = () => {},
+  onUpdate = () => {},
+}: CardProps) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id: card.id,
   });
@@ -35,7 +41,9 @@ function CardComponent({ card, onDelete = () => {}, onUpdate = () => {} }: CardP
     <div
       ref={setNodeRef}
       style={style}
-      className="mb-2 min-h-[56px] rounded border bg-white p-2 text-sm shadow-sm dark:bg-neutral-800"
+      className={`mb-2 min-h-[56px] rounded border bg-white p-2 text-sm shadow-sm transition-transform duration-200 ease-in-out dark:bg-neutral-800 ${
+        isCardDragging ? 'opacity-50' : ''
+      }`}
     >
       <div className="flex items-center justify-between">
         <span {...attributes} {...listeners} className="text-muted-foreground cursor-grab">

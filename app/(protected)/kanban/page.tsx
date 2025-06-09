@@ -159,6 +159,7 @@ export default function KanbanBoardPage() {
                   <Column
                     column={{ ...column, cards: column.cards ?? [] }}
                     isColumnDragging={!activeCard && activeId === column.id}
+                    activeId={activeId}
                     onAddCard={handleAddCardOptimistic}
                     onDeleteCard={handleDeleteCardOptimistic}
                     onDeleteColumn={handleDeleteColumnOptimistic}
@@ -178,7 +179,7 @@ export default function KanbanBoardPage() {
         {/* Drag Preview */}
         <DragOverlay>
           {activeCard ? (
-            <Card card={activeCard} />
+            <Card card={activeCard} isCardDragging={true} />
           ) : activeColumn ? (
             <Column
               column={{ ...activeColumn, cards: activeColumn.cards ?? [] }}
