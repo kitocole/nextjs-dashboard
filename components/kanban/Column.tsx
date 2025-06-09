@@ -12,6 +12,7 @@ import React from 'react';
 type ColumnProps = {
   column: ColumnType;
   isColumnDragging: boolean;
+  activeId?: string | null;
   onAddCard?: (columnId: string) => void;
   onDeleteCard?: (columnId: string, cardId: string) => void;
   onDeleteColumn?: (columnId: string) => void;
@@ -23,6 +24,7 @@ const Column = React.memo(
   ({
     column,
     isColumnDragging,
+    activeId = null,
     onAddCard = () => {},
     onDeleteCard = () => {},
     onDeleteColumn = () => {},
@@ -99,8 +101,11 @@ const Column = React.memo(
               <Card
                 key={card.id}
                 card={card}
+                isCardDragging={activeId === card.id}
                 onDelete={() => onDeleteCard(column.id, card.id)}
-                onUpdate={(newContent) => onUpdateCard(card.id, newContent, card.order, column.id)}
+                onUpdate={(newContent) =>
+                  onUpdateCard(card.id, newContent, card.order, column.id)
+                }
               />
             ))}
 
