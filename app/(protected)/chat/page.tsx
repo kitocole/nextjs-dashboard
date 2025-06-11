@@ -84,6 +84,7 @@ export default function ChatPage() {
   const { data: msgData } = useQuery(MESSAGES, {
     variables: { withUserId: selected },
     skip: !selected,
+    fetchPolicy: 'network-only',
     client: apolloClient,
   });
   const { data: searchData } = useQuery(SEARCH_USERS, {
