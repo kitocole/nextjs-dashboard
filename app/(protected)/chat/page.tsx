@@ -1,10 +1,12 @@
 'use client';
 
-import { useEffect, useState, useRef, UIEvent } from 'react';
+import { Fragment, useEffect, useState, useRef, UIEvent } from 'react';
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { apolloClient } from '@/lib/apollo';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Dialog, Transition } from '@headlessui/react';
+import { Menu } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 
 type User = { id: string; firstName: string; lastName: string; email: string };
@@ -77,6 +79,7 @@ export default function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
   const [isNearBottom, setIsNearBottom] = useState(true);
+  const [isDrawerOpen, setDrawerOpen] = useState(false);
 
   const { data: convoData, refetch: refetchConvos } = useQuery(CONVERSATIONS, {
     client: apolloClient,
@@ -144,6 +147,12 @@ export default function ChatPage() {
     refetchConvos();
   };
 
+  const handleSelect = (id: string) => {
+    setSelected(id);
+    setSearch('');
+    setDrawerOpen(false);
+  };
+
   const conversations = convoData?.conversations ?? [];
   const searchResults = searchData?.searchUsers ?? [];
   const selectedUser =
@@ -165,9 +174,9 @@ export default function ChatPage() {
     setIsNearBottom(isBottom);
   };
 
-  return (
-    <div className="flex h-[calc(93vh)] overflow-hidden border-2 bg-white pt-5 dark:bg-gray-900">
-      <aside className="flex h-full w-64 flex-col border-r p-4">
+  function ConversationList() {
+    return (
+      <>
         <Input
           placeholder="Search users"
           value={search}
@@ -182,12 +191,9 @@ export default function ChatPage() {
                   className={`cursor-pointer rounded-md p-2 hover:bg-gray-100 dark:hover:bg-gray-800 ${
                     selected === u.id ? 'bg-blue-500 text-white' : ''
                   }`}
-                  onClick={() => {
-                    setSelected(u.id);
-                    setSearch('');
-                  }}
+                  onClick={() => handleSelect(u.id)}
                 >
-                  <span className="block truncate" title={`${u.firstName} ${u.lastName}`}>
+                  <span className="block truncate" title={`${u.firstName} ${u.lastName}`}> 
                     {u.firstName} {u.lastName}
                   </span>
                 </div>
@@ -198,7 +204,7 @@ export default function ChatPage() {
                   className={`flex items-center justify-between rounded-md p-2 hover:bg-gray-100 dark:hover:bg-gray-800 ${
                     selected === u.id ? 'bg-blue-500 text-white' : ''
                   }`}
-                  onClick={() => setSelected(u.id)}
+                  onClick={() => handleSelect(u.id)}
                 >
                   <span className="truncate" title={`${u.firstName} ${u.lastName}`}> 
                     {u.firstName} {u.lastName}
@@ -217,17 +223,49 @@ export default function ChatPage() {
                 </div>
               ))}
         </div>
-      </aside>
-      <div className="flex flex-1 flex-col">
-        <div className="flex h-12 items-center border-b p-4 text-lg font-semibold">
-          {selectedUser ? (
-            <h2 className="truncate" title={`${selectedUser.firstName} ${selectedUser.lastName}`}> 
-              {selectedUser.firstName} {selectedUser.lastName}
-            </h2>
-          ) : (
-            <span>Select a conversation</span>
-          )}
-        </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Transition show={isDrawerOpen} as={Fragment}>
+        <Dialog as="div" className="fixed inset-0 z-40 md:hidden" onClose={() => setDrawerOpen(false)}>
+          <div className="fixed inset-0 bg-black/50" aria-hidden="true" />
+          <Transition
+            appear
+            show={isDrawerOpen}
+            as={Fragment}
+            enter="transition duration-300 ease-out"
+            enterFrom="-translate-x-full pointer-events-none"
+            enterTo="translate-x-0"
+            leave="transition duration-200 ease-in"
+            leaveFrom="translate-x-0 pointer-events-none"
+            leaveTo="-translate-x-full"
+          >
+            <div className="fixed inset-y-0 left-0 flex w-64 flex-col bg-white p-4 pt-6 dark:bg-gray-900">
+              <ConversationList />
+            </div>
+          </Transition>
+        </Dialog>
+      </Transition>
+      <div className="flex h-[calc(93vh)] overflow-hidden border-2 bg-white pt-5 dark:bg-gray-900">
+        <aside className="hidden h-full w-64 flex-col border-r p-4 md:flex">
+          <ConversationList />
+        </aside>
+        <div className="flex flex-1 flex-col">
+          <div className="flex h-12 items-center border-b p-4 text-lg font-semibold">
+            <button className="mr-2 rounded p-2 md:hidden" onClick={() => setDrawerOpen(true)}>
+              <Menu className="h-5 w-5" />
+            </button>
+            {selectedUser ? (
+              <h2 className="truncate" title={`${selectedUser.firstName} ${selectedUser.lastName}`}> 
+                {selectedUser.firstName} {selectedUser.lastName}
+              </h2>
+            ) : (
+              <span>Select a conversation</span>
+            )}
+          </div>
         <div
           className="flex-1 space-y-2 overflow-y-auto border p-4"
           ref={messagesContainerRef}
@@ -239,7 +277,7 @@ export default function ChatPage() {
               className={`flex ${m.senderId === session?.user?.id ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[70%] rounded-lg p-2 text-sm whitespace-pre-line ${
+                className={`max-w-[85%] md:max-w-[70%] rounded-lg p-2 text-sm whitespace-pre-line ${
                   m.senderId === session?.user?.id
                     ? 'bg-blue-500 text-white'
                     : 'bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-gray-100'
@@ -267,5 +305,6 @@ export default function ChatPage() {
         )}
       </div>
     </div>
+    </>
   );
 }
