@@ -187,7 +187,9 @@ export default function ChatPage() {
                     setSearch('');
                   }}
                 >
-                  {u.firstName} {u.lastName}
+                  <span className="block truncate" title={`${u.firstName} ${u.lastName}`}>
+                    {u.firstName} {u.lastName}
+                  </span>
                 </div>
               ))
             : conversations.map((u: User) => (
@@ -198,7 +200,7 @@ export default function ChatPage() {
                   }`}
                   onClick={() => setSelected(u.id)}
                 >
-                  <span>
+                  <span className="truncate" title={`${u.firstName} ${u.lastName}`}> 
                     {u.firstName} {u.lastName}
                   </span>
                   <button
@@ -219,7 +221,7 @@ export default function ChatPage() {
       <div className="flex flex-1 flex-col">
         <div className="flex h-12 items-center border-b p-4 text-lg font-semibold">
           {selectedUser ? (
-            <h2>
+            <h2 className="truncate" title={`${selectedUser.firstName} ${selectedUser.lastName}`}> 
               {selectedUser.firstName} {selectedUser.lastName}
             </h2>
           ) : (
