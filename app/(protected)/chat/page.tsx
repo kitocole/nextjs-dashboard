@@ -144,7 +144,7 @@ export default function ChatPage() {
   const handleDelete = async (id: string) => {
     await del({ variables: { withUserId: id } });
     if (selected === id) setSelected(null);
-    refetchConvos();
+    await refetchConvos();
   };
 
   const handleSelect = (id: string) => {
@@ -159,6 +159,12 @@ export default function ChatPage() {
     conversations.find((u: User) => u.id === selected) ??
     searchResults.find((u: User) => u.id === selected) ??
     null;
+
+  useEffect(() => {
+    if (!selected && conversations.length > 0) {
+      setSelected(conversations[0].id);
+    }
+  }, [conversations, selected]);
 
   useEffect(() => {
     if (selectedUser) {
@@ -213,7 +219,7 @@ export default function ChatPage() {
                   }`}
                   onClick={() => handleSelect(u.id)}
                 >
-                  <span className="truncate" title={`${u.firstName} ${u.lastName}`}> 
+                  <span className="truncate" title={`${u.firstName} ${u.lastName}`}>
                     {u.firstName} {u.lastName}
                   </span>
                   <button
