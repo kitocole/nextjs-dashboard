@@ -141,7 +141,7 @@ export default function ChatPage() {
   const handleDelete = async (id: string) => {
     await del({ variables: { withUserId: id } });
     if (selected === id) setSelected(null);
-    refetchConvos();
+    await refetchConvos();
   };
 
   const conversations = convoData?.conversations ?? [];
@@ -150,6 +150,12 @@ export default function ChatPage() {
     conversations.find((u: User) => u.id === selected) ??
     searchResults.find((u: User) => u.id === selected) ??
     null;
+
+  useEffect(() => {
+    if (!selected && conversations.length > 0) {
+      setSelected(conversations[0].id);
+    }
+  }, [conversations, selected]);
 
   useEffect(() => {
     if (selectedUser) {
@@ -200,7 +206,7 @@ export default function ChatPage() {
                   }`}
                   onClick={() => setSelected(u.id)}
                 >
-                  <span className="truncate" title={`${u.firstName} ${u.lastName}`}> 
+                  <span className="truncate" title={`${u.firstName} ${u.lastName}`}>
                     {u.firstName} {u.lastName}
                   </span>
                   <button
@@ -221,7 +227,7 @@ export default function ChatPage() {
       <div className="flex flex-1 flex-col">
         <div className="flex h-12 items-center border-b p-4 text-lg font-semibold">
           {selectedUser ? (
-            <h2 className="truncate" title={`${selectedUser.firstName} ${selectedUser.lastName}`}> 
+            <h2 className="truncate" title={`${selectedUser.firstName} ${selectedUser.lastName}`}>
               {selectedUser.firstName} {selectedUser.lastName}
             </h2>
           ) : (

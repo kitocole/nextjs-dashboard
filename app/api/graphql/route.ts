@@ -45,7 +45,31 @@ const resolvers = {
         },
         select: { id: true, firstName: true, lastName: true, email: true },
       });
-      return users.filter((u) => u.id !== userId);
+      const convosWithDate = await Promise.all(
+        users
+          .filter((u) => u.id !== userId)
+          .map(async (u) => {
+            const last = await db.message.findFirst({
+              where: {
+                OR: [
+                  { senderId: userId, recipientId: u.id, deletedForSender: false },
+                  { senderId: u.id, recipientId: userId, deletedForRecipient: false },
+                ],
+              },
+              orderBy: { createdAt: 'desc' },
+              select: { createdAt: true },
+            });
+            return { ...u, lastMessageAt: last?.createdAt ?? new Date(0) };
+          }),
+      );
+      return convosWithDate
+        .sort((a, b) => b.lastMessageAt.getTime() - a.lastMessageAt.getTime())
+        .map(({ id, firstName, lastName, email }) => ({
+          id,
+          firstName,
+          lastName,
+          email,
+        }));
     },
     messages: async (
       _: unknown,
