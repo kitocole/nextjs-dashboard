@@ -6,7 +6,7 @@ import { apolloClient } from '@/lib/apollo';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, Transition } from '@headlessui/react';
-import { Menu } from 'lucide-react';
+import { Menu, ArrowLeft } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 
 type User = { id: string; firstName: string; lastName: string; email: string };
@@ -174,15 +174,22 @@ export default function ChatPage() {
     setIsNearBottom(isBottom);
   };
 
-  function ConversationList() {
+  function ConversationList({ onBack }: { onBack?: () => void }) {
     return (
       <>
-        <Input
-          placeholder="Search users"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="mb-2"
-        />
+        <div className="mb-2 flex items-center">
+          {onBack && (
+            <button className="mr-2 md:hidden" onClick={onBack}>
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+          )}
+          <Input
+            placeholder="Search users"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="flex-1"
+          />
+        </div>
         <div className="flex-1 space-y-2 overflow-y-auto">
           {search
             ? searchResults.map((u: User) => (
@@ -231,7 +238,7 @@ export default function ChatPage() {
     <>
       <Transition show={isDrawerOpen} as={Fragment}>
         <Dialog as="div" className="fixed inset-0 z-40 md:hidden" onClose={() => setDrawerOpen(false)}>
-          <div className="fixed inset-0 bg-black/50" aria-hidden="true" />
+          <div className="fixed inset-0 bg-black/50" onClick={() => setDrawerOpen(false)} aria-hidden="true" />
           <Transition
             appear
             show={isDrawerOpen}
@@ -243,9 +250,9 @@ export default function ChatPage() {
             leaveFrom="translate-x-0 pointer-events-none"
             leaveTo="-translate-x-full"
           >
-            <div className="fixed inset-y-0 left-0 flex w-64 flex-col bg-white p-4 pt-6 dark:bg-gray-900">
-              <ConversationList />
-            </div>
+            <Dialog.Panel className="fixed inset-y-0 left-0 flex w-64 flex-col bg-white p-4 pt-6 dark:bg-gray-900">
+              <ConversationList onBack={() => setDrawerOpen(false)} />
+            </Dialog.Panel>
           </Transition>
         </Dialog>
       </Transition>
