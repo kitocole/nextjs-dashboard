@@ -28,6 +28,7 @@ export default function LoginPageClient({ initialError }: LoginPageClientProps) 
 
   const [mode, setMode] = useState<'signIn' | 'signUp'>('signIn');
   const [demo, setDemo] = useState<{ name: string; email: string; password: string } | null>(null);
+  const [showEmailLogin, setShowEmailLogin] = useState(false); // Add this line
 
   const [form, setForm] = useState({
     firstName: '',
@@ -174,105 +175,6 @@ export default function LoginPageClient({ initialError }: LoginPageClientProps) 
             </Button>
           </div>
 
-          <form className="space-y-4" onSubmit={mode === 'signUp' ? handleSignup : handleSignin}>
-            {mode === 'signUp' && (
-              <>
-                <div>
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input
-                    id="firstName"
-                    placeholder="First Name"
-                    value={form.firstName}
-                    onChange={handleChange}
-                  />
-                  {validationErrors.firstName && (
-                    <p className="text-sm text-red-500">{validationErrors.firstName}</p>
-                  )}
-                </div>
-                <div>
-                  <Label htmlFor="middleName">Middle Name</Label>
-                  <Input
-                    id="middleName"
-                    placeholder="Middle Name"
-                    value={form.middleName}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input
-                    id="lastName"
-                    placeholder="Last Name"
-                    value={form.lastName}
-                    onChange={handleChange}
-                  />
-                  {validationErrors.lastName && (
-                    <p className="text-sm text-red-500">{validationErrors.lastName}</p>
-                  )}
-                </div>
-                <div>
-                  <Label htmlFor="suffix">Suffix</Label>
-                  <Input
-                    id="suffix"
-                    placeholder="Suffix"
-                    value={form.suffix}
-                    onChange={handleChange}
-                  />
-                </div>
-              </>
-            )}
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={form.email}
-                onChange={handleChange}
-              />
-              {validationErrors.email && (
-                <p className="text-sm text-red-500">{validationErrors.email}</p>
-              )}
-            </div>
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Enter your password"
-                value={form.password}
-                onChange={handleChange}
-              />
-              {validationErrors.password && (
-                <p className="text-sm text-red-500">{validationErrors.password}</p>
-              )}
-            </div>
-            {mode === 'signUp' && (
-              <div>
-                <Label htmlFor="confirm">Confirm Password</Label>
-                <Input
-                  id="confirm"
-                  type="password"
-                  placeholder="Confirm your password"
-                  value={form.confirm}
-                  onChange={handleChange}
-                />
-                {validationErrors.confirm && (
-                  <p className="text-sm text-red-500">{validationErrors.confirm}</p>
-                )}
-              </div>
-            )}
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading
-                ? mode === 'signIn'
-                  ? 'Signing In…'
-                  : 'Signing Up…'
-                : mode === 'signIn'
-                  ? 'Sign In'
-                  : 'Sign Up'}
-            </Button>
-          </form>
-
           <div className="space-y-4">
             <Button
               variant="outline"
@@ -337,6 +239,120 @@ export default function LoginPageClient({ initialError }: LoginPageClientProps) 
                   : 'Sign up with GitHub'}
             </Button>
           </div>
+
+          {/* Move the "Login with email instead" button here */}
+          {!showEmailLogin && (
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => setShowEmailLogin(true)}
+              disabled={loading}
+            >
+              Login with email instead
+            </Button>
+          )}
+
+          {/* Email/password form is hidden until showEmailLogin is true */}
+          {showEmailLogin && (
+            <form className="space-y-4" onSubmit={mode === 'signUp' ? handleSignup : handleSignin}>
+              {mode === 'signUp' && (
+                <>
+                  <div>
+                    <Label htmlFor="firstName">First Name</Label>
+                    <Input
+                      id="firstName"
+                      placeholder="First Name"
+                      value={form.firstName}
+                      onChange={handleChange}
+                    />
+                    {validationErrors.firstName && (
+                      <p className="text-sm text-red-500">{validationErrors.firstName}</p>
+                    )}
+                  </div>
+                  <div>
+                    <Label htmlFor="middleName">Middle Name</Label>
+                    <Input
+                      id="middleName"
+                      placeholder="Middle Name"
+                      value={form.middleName}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="lastName">Last Name</Label>
+                    <Input
+                      id="lastName"
+                      placeholder="Last Name"
+                      value={form.lastName}
+                      onChange={handleChange}
+                    />
+                    {validationErrors.lastName && (
+                      <p className="text-sm text-red-500">{validationErrors.lastName}</p>
+                    )}
+                  </div>
+                  <div>
+                    <Label htmlFor="suffix">Suffix</Label>
+                    <Input
+                      id="suffix"
+                      placeholder="Suffix"
+                      value={form.suffix}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </>
+              )}
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={form.email}
+                  onChange={handleChange}
+                />
+                {validationErrors.email && (
+                  <p className="text-sm text-red-500">{validationErrors.email}</p>
+                )}
+              </div>
+              <div>
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={form.password}
+                  onChange={handleChange}
+                />
+                {validationErrors.password && (
+                  <p className="text-sm text-red-500">{validationErrors.password}</p>
+                )}
+              </div>
+              {mode === 'signUp' && (
+                <div>
+                  <Label htmlFor="confirm">Confirm Password</Label>
+                  <Input
+                    id="confirm"
+                    type="password"
+                    placeholder="Confirm your password"
+                    value={form.confirm}
+                    onChange={handleChange}
+                  />
+                  {validationErrors.confirm && (
+                    <p className="text-sm text-red-500">{validationErrors.confirm}</p>
+                  )}
+                </div>
+              )}
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading
+                  ? mode === 'signIn'
+                    ? 'Signing In…'
+                    : 'Signing Up…'
+                  : mode === 'signIn'
+                    ? 'Sign In'
+                    : 'Sign Up'}
+              </Button>
+            </form>
+          )}
 
           <div className="text-center">
             {mode === 'signIn' ? (
