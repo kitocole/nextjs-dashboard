@@ -1,22 +1,29 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { signIn, useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 export default function AutoDemoLogin() {
   const { status } = useSession();
+  const router = useRouter();
+  const tried = useRef(false);
 
   useEffect(() => {
     const disable = new URLSearchParams(window.location.search).get('noAuto');
-    if (status === 'unauthenticated' && !disable) {
-      // silently sign in with the demo account
+    if (status === 'unauthenticated' && !disable && !tried.current) {
+      tried.current = true;
       signIn('credentials', {
-        email: 'demo@example.com',
-        password: 'demo',
-        callbackUrl: '/dashboard',
+        email: 'editor@example.com',
+        password: 'changeme',
+        redirect: false,
+      }).then((res) => {
+        if (!res?.error) {
+          router.replace('/dashboard');
+        }
       });
     }
-  }, [status]);
+  }, [status, router]);
 
   return null;
 }
