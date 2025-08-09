@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Code, LayoutDashboard, Moon, LockKeyhole, ChartPie, Move } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import AutoDemoLogin from '@/components/login/AutoDemoLogin';
 
 export default function HomePage() {
   const features = [
@@ -39,7 +40,9 @@ export default function HomePage() {
   ];
 
   return (
-    <main className="flex flex-col items-center justify-center gap-20 px-6 py-20 dark:bg-gray-900">
+    <>
+      <AutoDemoLogin />
+      <main className="flex flex-col items-center justify-center gap-20 px-6 py-20 dark:bg-gray-900">
       {/* Hero */}
       <section className="max-w-3xl text-center">
         <h1 className="mb-4 text-5xl font-extrabold text-gray-900 dark:text-gray-100">
@@ -93,6 +96,7 @@ export default function HomePage() {
           </div>
         ))}
       </section>
-    </main>
+      </main>
+    </>
   );
 }

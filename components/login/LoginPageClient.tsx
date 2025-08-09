@@ -8,6 +8,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import AutoDemoLogin from './AutoDemoLogin';
 
 const ERROR_MESSAGES: Record<string, string> = {
   OAuthAccountNotLinked:
@@ -129,6 +130,7 @@ export default function LoginPageClient({ initialError }: LoginPageClientProps) 
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <AutoDemoLogin />
       <Card className="w-full max-w-md bg-white text-gray-900 dark:bg-gray-800 dark:text-gray-100">
         <CardHeader>
           <CardTitle>{title}</CardTitle>

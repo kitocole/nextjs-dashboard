@@ -35,6 +35,13 @@ async function main() {
       email: 'editor@example.com',
       password: 'changeme',
     },
+    {
+      firstName: 'Demo',
+      lastName: 'User',
+      role: 'USER',
+      email: 'demo@example.com',
+      password: 'demo',
+    },
   ];
   await db.user.deleteMany({ where: { email: { in: demos.map((d) => d.email) } } });
   console.log('Cleared demo users.');

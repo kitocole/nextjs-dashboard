@@ -245,7 +245,7 @@ export function Navbar() {
                   <MenuItem>
                     {({ focus }) => (
                       <button
-                        onClick={() => signOut({ callbackUrl: '/' })}
+                        onClick={() => signOut({ callbackUrl: '/login?noAuto=1' })}
                         className={`flex w-full items-center px-4 py-2 text-left text-sm ${
                           focus
                             ? 'bg-gray-100 dark:bg-gray-700'
