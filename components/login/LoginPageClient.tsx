@@ -8,7 +8,6 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import AutoDemoLogin from './AutoDemoLogin';
 
 const ERROR_MESSAGES: Record<string, string> = {
   OAuthAccountNotLinked:
@@ -28,7 +27,13 @@ export default function LoginPageClient({ initialError }: LoginPageClientProps) 
   const errorMessage = ERROR_MESSAGES[initialError] ?? ERROR_MESSAGES.Default;
 
   const [mode, setMode] = useState<'signIn' | 'signUp'>('signIn');
-  const [demo, setDemo] = useState<{ name: string; email: string; password: string } | null>(null);
+  const [demo, setDemo] = useState<{ name: string; email: string; password: string }>(
+    {
+      name: 'User',
+      email: 'editor@example.com',
+      password: 'changeme',
+    },
+  );
   const [showEmailLogin, setShowEmailLogin] = useState(false); // Add this line
 
   const [form, setForm] = useState({
@@ -128,10 +133,9 @@ export default function LoginPageClient({ initialError }: LoginPageClientProps) 
 
   const title = mode === 'signIn' ? 'Sign in to your account' : 'Create your account';
 
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
-      <AutoDemoLogin />
-      <Card className="w-full max-w-md bg-white text-gray-900 dark:bg-gray-800 dark:text-gray-100">
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <Card className="w-full max-w-md bg-white text-gray-900 dark:bg-gray-800 dark:text-gray-100">
         <CardHeader>
           <CardTitle>{title}</CardTitle>
         </CardHeader>
@@ -144,36 +148,30 @@ export default function LoginPageClient({ initialError }: LoginPageClientProps) 
             <Label htmlFor="demo">Demo User</Label>
             <select
               id="demo"
+              value={`${demo.name}|${demo.email}`}
               onChange={(e) => {
                 const [name, email] = e.target.value.split('|');
                 setDemo({ name, email, password: 'changeme' });
               }}
               className="w-full rounded border border-gray-300 bg-white p-2 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
             >
-              <option value="">Select a demo account</option>
               <option value="Admin|admin@example.com">Admin</option>
               <option value="User|editor@example.com">User</option>
             </select>
             <Button
               variant="outline"
               className="w-full"
-              disabled={!demo || loading}
+              disabled={loading}
               onClick={() => {
-                if (demo) {
-                  setLoading(true);
-                  signIn('credentials', {
-                    email: demo.email,
-                    password: demo.password,
-                    callbackUrl: '/dashboard',
-                  });
-                }
+                setLoading(true);
+                signIn('credentials', {
+                  email: demo.email,
+                  password: demo.password,
+                  callbackUrl: '/dashboard',
+                });
               }}
             >
-              {loading && demo
-                ? `Logging in…`
-                : demo
-                  ? `Login as ${demo.name}`
-                  : 'Choose a demo account'}
+              {loading ? `Logging in…` : 'Login'}
             </Button>
           </div>
 
