@@ -171,7 +171,7 @@ export default function LoginPageClient({ initialError }: LoginPageClientProps) 
                 });
               }}
             >
-              {loading ? `Logging in…` : 'Login'}
+              {loading ? `Logging in…` : `Login as ${demo.name}`}
             </Button>
           </div>
 
